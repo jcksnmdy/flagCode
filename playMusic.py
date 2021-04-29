@@ -4,7 +4,7 @@ import time
 from broadcastDisplay import toColor
 import paho.mqtt.client as mqtt
 import sys
-sys.path.append('/Users/s1034274/Desktop/globals/')
+sys.path.append('/home/pi/Desktop/globals/')
 from constants import path, arduinoNum
 #!/usr/bin/env python3
 import serial
@@ -22,13 +22,13 @@ MQTT_PATH = "test_channel"
 def play(num):
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 5
-    df = pd.read_excel(path + "/flagCode/song" + str(num) + "/" + flag + ".xlsx")
+    df = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
     while (i < len(df)):
-        ser.write(b"" + toColor(df.loc[(i),'red Left']) + "\n")
+        ser.write(b"" + toColor(df.loc[(i),flag + ' Left']) + "\n")
         line = ser.readline().decode('utf-8').rstrip()
         print(line)
         time.sleep(0.01)
-        print(str(i) + " " + str(df.loc[(i),'red Left']))
+        print(str(i) + " " + str(df.loc[(i),flag + ' Left']))
         i+=3
     print("Done")
  
