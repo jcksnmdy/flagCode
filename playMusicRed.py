@@ -2,45 +2,60 @@ import pandas as pd
 import os
 import time
 from broadcastDisplay import toColor
-
-numInPlaylist = 1
-
 import paho.mqtt.client as mqtt
-
 import pyfirmata
-
-board = pyfirmata.Arduino('/dev/ttyACM0')
-red1 = board.get_pin('d:2:o')
-green1 = board.get_pin('d:3:o')
-blue1 = board.get_pin('d:4:o')
-
-red1.write(0)
-green1.write(0)
-blue1.write(0)
+import sys
+sys.path.append('/Users/s1034274/Desktop/globals/')
+from constants import path
 
 MQTT_SERVER = "192.168.1.119"
+flag = "red"
+
 MQTT_PATH = "test_channel"
+
+board = pyfirmata.Arduino('/dev/ttyACM0')
+redLeft = board.get_pin('d:2:o')
+greenLeft = board.get_pin('d:3:o')
+blueLeft = board.get_pin('d:4:o')
+redMid = board.get_pin('d:5:o')
+greenMid = board.get_pin('d:6:o')
+blueMid = board.get_pin('d:7:o')
+redRight = board.get_pin('d:8:o')
+greenRight = board.get_pin('d:9:o')
+blueRight = board.get_pin('d:10:o')
+
+redLeft.write(0)
+greenLeft.write(0)
+blueLeft.write(0)
+redMid.write(0)
+greenMid.write(0)
+blueMid.write(0)
+redRight.write(0)
+greenRight.write(0)
+blueRight.write(0)
 
 
 def play(num):
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 5
-    df = pd.read_excel("/home/pi/Desktop/coreLightShow/songs/song" + str(num) + ".xlsx")
+    df = pd.read_excel(path + "/flagCode/song" + str(num) + "/" + flag + ".xlsx")
     while (i < len(df)):
-        if(toColor(df.loc[(i),'Red 1'])==(255,0,0)):
+        if(toColor(df.loc[(i),'red Left'])==(255,0,0)):
             print("Red")
-            red1.write(1)
-        elif(toColor(df.loc[(i),'Red 1'])==(255,255,255)):
+            redLeft.write(1)
+            greenLeft.write(0)
+            blueLeft.write(0)
+        elif(toColor(df.loc[(i),'red Left'])==(255,255,255)):
             print("White")
-            red1.write(1)
-            green1.write(1)
-            blue1.write(1)
+            redLeft.write(1)
+            greenLeft.write(1)
+            blueLeft.write(1)
         else:
             print("Off")
-            red1.write(0)
-            green1.write(0)
-            blue1.write(0)
-        print(str(i) + " " + str(df.loc[(i),'Red 1']))
+            redLeft.write(0)
+            greenLeft.write(0)
+            blueLeft.write(0)
+        print(str(i) + " " + str(df.loc[(i),'Red Flag Left']))
         time.sleep(0.03)
         i+=1
     print("Done")
