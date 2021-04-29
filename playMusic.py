@@ -24,7 +24,7 @@ def play(num):
     i = 5
     df = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
     while (i < len(df)):
-        ser.write(b"" + toColor(df.loc[(i),flag + ' Left']) + "\n")
+        ser.write(b"" + str(toColor(df.loc[(i),flag + ' Left'])).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
         print(line)
         time.sleep(0.01)
