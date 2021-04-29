@@ -5,12 +5,12 @@ from broadcastDisplay import toColor
 import paho.mqtt.client as mqtt
 import sys
 sys.path.append('/Users/s1034274/Desktop/globals/')
-from constants import path
+from constants import path, arduinoNum
 #!/usr/bin/env python3
 import serial
 import time
 
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyACM' + arduinoNum, 9600, timeout=1)
 ser.flush()
 
 MQTT_SERVER = "192.168.1.119"
