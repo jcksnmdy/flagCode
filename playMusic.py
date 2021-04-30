@@ -10,11 +10,15 @@ from constants import path, arduinoNum
 import serial
 import time
 
-ser = serial.Serial('/dev/ttyACM' + arduinoNum, 9600, timeout=1)
-ser.flush()
-
 MQTT_SERVER = "192.168.1.119"
 flag = "red"
+
+try:
+    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    ser.flush()
+except OSError:
+    ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+    ser.flush()
 
 MQTT_PATH = "test_channel"
 

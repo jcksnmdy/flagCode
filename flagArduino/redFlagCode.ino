@@ -353,11 +353,13 @@ void listen() {
           TurnOff();
         }
       }
+    } else {
+      TurnOn(255, 0, 0)
     }
   } else {
-    TurnOff();
-  }
-  else {
     standBy();
-  }// 102!red!!200!!!3!!!!sparkle
+  }
+  // else {
+  //   standBy();
+  // }// 102!red!!200!!!3!!!!sparkle
 }
