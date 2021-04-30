@@ -22,6 +22,7 @@ except OSError:
 
 MQTT_PATH = "test_channel"
 
+ser.write(b"(255, 255, 255")
 
 def play(num):
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))

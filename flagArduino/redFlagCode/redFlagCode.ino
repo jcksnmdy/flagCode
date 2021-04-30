@@ -292,22 +292,23 @@ void blink(String color, int speed, int timeOut, String endEvent) {
 void loop(){
   buttonState = digitalRead(buttonPin);
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonState == HIGH) {
-    TurnOn(255,0,0);
-    Serial.println("RED");
-  } else {
-    //TurnOn(255,255,255);
-    listen();
-  }
-  standBy();
+//  if (buttonState == HIGH) {
+//    TurnOn(255,0,0);
+//    Serial.println("RED");
+//  } else {
+//    //TurnOn(255,255,255);
+//    listen();
+//  }
+//  standBy();
+  listen();
 }
 
 void listen() {
   // send data only when you receive data:
   if (Serial.available() > 0) {
     // read the incoming byte:
-    incomingByte = Serial.readString();
-    Serial.println("I got: " + incomingByte.substring(1, incomingByte.indexOf(",")).toInt() + " " + incomingByte.substring(incomingByte.indexOf(","+2), incomingByte.indexOf(","+5)).toInt() + " " + incomingByte.substring(incomingByte.indexOf(")"-3), incomingByte.indexOf(")")).toInt());
+    incomingByte = Serial.readStringUntil('\n');
+    Serial.println("I got: " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(","+2), incomingByte.indexOf(","+5)) + " " + incomingByte.substring(incomingByte.indexOf(")"-3), incomingByte.indexOf(")")));
     
     TurnOn(incomingByte.substring(1, incomingByte.indexOf(",")).toInt(), incomingByte.substring(incomingByte.indexOf(","+2), incomingByte.indexOf(","+5)).toInt(), incomingByte.substring(incomingByte.indexOf(")"-3), incomingByte.indexOf(")")).toInt());
     // if (incomingByte.substring(0,1).equals("1")) {
@@ -358,9 +359,9 @@ void listen() {
     // } else {
     //   TurnOn(255, 0, 0)
     // }
-  } else {
-    standBy();
-  }
+    } // else {
+//    standBy();
+//  }
   // else {
   //   standBy();
   // }// 102!red!!200!!!3!!!!sparkle
