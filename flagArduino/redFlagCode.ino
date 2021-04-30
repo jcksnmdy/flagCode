@@ -308,54 +308,57 @@ void listen() {
     // read the incoming byte:
     incomingByte = Serial.readString();
     Serial.println("I got: " + incomingByte);
-    if (incomingByte.substring(0,1).equals("1")) {
-      if (incomingByte.substring(1,2).equals("1")) {
-        Serial.println("Light");
-      } else {
-        String color = incomingByte.substring(incomingByte.indexOf("!")+1,incomingByte.indexOf("!!"));
-        int speed = incomingByte.substring(incomingByte.indexOf("!!")+2,incomingByte.indexOf("!!!")).toInt();
-        int timeOut = incomingByte.substring(incomingByte.indexOf("!!!")+3,incomingByte.indexOf("!!!!")).toInt();
-        String endEvent = incomingByte.substring(incomingByte.indexOf("!!!!")+4);
-        if (incomingByte.substring(2,3).equals("1")) {
-          if (color.equals("red")) {
-            rBright = 255;
-            gBright = 0;
-            bBright = 0;
-          } else if (color.equals("blue")) {
-            rBright = 0;
-            gBright = 0;
-            bBright = 255;
-          } else if (color.equals("orange")) {
-            rBright = 255;
-            gBright = 128;
-            bBright = 0;
-          } else if (color.equals("white")) {
-            rBright = 255;
-            gBright = 255;
-            bBright = 255;
-          } else if (color.equals("green")) {
-            rBright = 0;
-            gBright = 255;
-            bBright = 0;
-          } else if (color.equals("yellow")) {
-            rBright = 255;
-            gBright = 255;
-            bBright = 0;
-          }
-          TurnOnTime(rBright, gBright, bBright, timeOut);
-        } else if (incomingByte.substring(2,3).equals("2")) {
-          pulse(color, speed, timeOut, endEvent);
-        } else if (incomingByte.substring(2,3).equals("3")) {
-          sparkle(color, speed, timeOut, endEvent);
-        } else if (incomingByte.substring(2,3).equals("4")) {
-          blink(color, speed, timeOut, endEvent);
-        } else {
-          TurnOff();
-        }
-      }
-    } else {
-      TurnOn(255, 0, 0)
+    if (incomingByte.equals("(255, 255, 255)")) {
+      TurnOn(255, 255, 255);
     }
+    // if (incomingByte.substring(0,1).equals("1")) {
+    //   if (incomingByte.substring(1,2).equals("1")) {
+    //     Serial.println("Light");
+    //   } else {
+    //     String color = incomingByte.substring(incomingByte.indexOf("!")+1,incomingByte.indexOf("!!"));
+    //     int speed = incomingByte.substring(incomingByte.indexOf("!!")+2,incomingByte.indexOf("!!!")).toInt();
+    //     int timeOut = incomingByte.substring(incomingByte.indexOf("!!!")+3,incomingByte.indexOf("!!!!")).toInt();
+    //     String endEvent = incomingByte.substring(incomingByte.indexOf("!!!!")+4);
+    //     if (incomingByte.substring(2,3).equals("1")) {
+    //       if (color.equals("red")) {
+    //         rBright = 255;
+    //         gBright = 0;
+    //         bBright = 0;
+    //       } else if (color.equals("blue")) {
+    //         rBright = 0;
+    //         gBright = 0;
+    //         bBright = 255;
+    //       } else if (color.equals("orange")) {
+    //         rBright = 255;
+    //         gBright = 128;
+    //         bBright = 0;
+    //       } else if (color.equals("white")) {
+    //         rBright = 255;
+    //         gBright = 255;
+    //         bBright = 255;
+    //       } else if (color.equals("green")) {
+    //         rBright = 0;
+    //         gBright = 255;
+    //         bBright = 0;
+    //       } else if (color.equals("yellow")) {
+    //         rBright = 255;
+    //         gBright = 255;
+    //         bBright = 0;
+    //       }
+    //       TurnOnTime(rBright, gBright, bBright, timeOut);
+    //     } else if (incomingByte.substring(2,3).equals("2")) {
+    //       pulse(color, speed, timeOut, endEvent);
+    //     } else if (incomingByte.substring(2,3).equals("3")) {
+    //       sparkle(color, speed, timeOut, endEvent);
+    //     } else if (incomingByte.substring(2,3).equals("4")) {
+    //       blink(color, speed, timeOut, endEvent);
+    //     } else {
+    //       TurnOff();
+    //     }
+    //   }
+    // } else {
+    //   TurnOn(255, 0, 0)
+    // }
   } else {
     standBy();
   }
