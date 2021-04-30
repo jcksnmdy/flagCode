@@ -14,10 +14,10 @@ MQTT_SERVER = "192.168.1.119"
 flag = "red"
 
 try:
-    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
     ser.flush()
 except OSError:
-    ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
     ser.flush()
 
 MQTT_PATH = "test_channel"
