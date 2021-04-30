@@ -307,7 +307,8 @@ void listen() {
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readString();
-    Serial.println("I got: " + incomingByte);
+    Serial.println("I got: " + incomingByte.substring(1, incomingByte.indexOf(",")).toInt() + " " + incomingByte.substring(incomingByte.indexOf(","+2), incomingByte.indexOf(","+5)).toInt() + " " + incomingByte.substring(incomingByte.indexOf(")"-3), incomingByte.indexOf(")")).toInt());
+    
     TurnOn(incomingByte.substring(1, incomingByte.indexOf(",")).toInt(), incomingByte.substring(incomingByte.indexOf(","+2), incomingByte.indexOf(","+5)).toInt(), incomingByte.substring(incomingByte.indexOf(")"-3), incomingByte.indexOf(")")).toInt());
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
