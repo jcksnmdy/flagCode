@@ -308,7 +308,7 @@ void listen() {
     // read the incoming byte:
     incomingByte = Serial.readString();
     Serial.println("I got: " + incomingByte);
-    if (incomingByte.equals("(255, 255, 255)")) {
+    if (incomingByte.equals("(255.0, 255.0, 255.0)")) {
       TurnOn(255, 255, 255);
     }
     // if (incomingByte.substring(0,1).equals("1")) {
