@@ -308,9 +308,9 @@ void listen() {
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readStringUntil('\n');
-    Serial.println("I got: " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(","+2), incomingByte.indexOf(","+5)) + " " + incomingByte.substring(incomingByte.indexOf(")"-3), incomingByte.indexOf(")")));
+    Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(")")-7) + " " + incomingByte.substring(incomingByte.indexOf(")")-5, incomingByte.indexOf(")")));
     
-    TurnOn(incomingByte.substring(1, incomingByte.indexOf(",")).toInt(), incomingByte.substring(incomingByte.indexOf(","+2), incomingByte.indexOf(","+5)).toInt(), incomingByte.substring(incomingByte.indexOf(")"-3), incomingByte.indexOf(")")).toInt());
+    TurnOn(incomingByte.substring(1, incomingByte.indexOf(",")).toInt(), incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(")")-7).toInt(), incomingByte.substring(incomingByte.indexOf(")")-5, incomingByte.indexOf(")")).toInt());
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
     //     Serial.println("Light");

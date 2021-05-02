@@ -22,19 +22,20 @@ except OSError:
 
 MQTT_PATH = "test_channel"
 
-ser.write(b"(255, 255, 255")
+ser.write(b"(255, 255, 255)\n")
 
 def play(num):
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 5
     df = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
     while (i < len(df)):
-        ser.write(b"" + str(toColor(df.loc[(i),flag + ' Left'])).encode('ascii') + "\n".encode('ascii'))
+        print(str(i) + " Sending: " + str(df.loc[(i),flag + ' Left']))
+        ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
         print(line)
         time.sleep(0.01)
-        print(str(i) + " " + str(df.loc[(i),flag + ' Left']))
-        i+=3
+
+        i+=2
     print("Done")
  
 # The callback for when the client receives a CONNACK response from the server.
