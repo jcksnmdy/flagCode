@@ -5,6 +5,7 @@ from broadcastDisplay import toColor
 import paho.mqtt.client as mqtt
 import sys
 sys.path.append('/home/pi/Desktop/globals/')
+#sys.path.append('/home/pi/Desktop/globals/')
 from constants import path, arduinoNum
 #!/usr/bin/env python3
 import serial
