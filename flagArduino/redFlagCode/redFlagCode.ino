@@ -57,9 +57,8 @@ void setup() {
   pinMode(GREEN_LEDlarge, OUTPUT);
   pinMode(RED_LEDlarge, OUTPUT);
   pinMode(BLUE_LEDlarge, OUTPUT);
-  setSmallColor(0,0,0);
-  setMedColor(0,0,0);
-  setLargeColor(0,0,0);
+  TurnOn(0, 0, 0);
+  
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
 }
 
@@ -147,8 +146,8 @@ void TurnOnTime(int red, int green, int blue, int timeOut){
     delay(timeOut);
 }
 void setSmallColor(int red, int green, int blue) {
-    analogWrite(RED_LEDsmall, red);
     analogWrite(GREEN_LEDsmall, green);
+    analogWrite(RED_LEDsmall, red);
     analogWrite(BLUE_LEDsmall, blue);
 }
 
@@ -301,6 +300,8 @@ void loop(){
 //  }
 //  standBy();
   listen();
+//  TurnOn(190,200,200);
+  //standBy();
 }
 
 void listen() {
@@ -308,9 +309,9 @@ void listen() {
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readStringUntil('\n');
-    Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(")")-7) + " " + incomingByte.substring(incomingByte.indexOf(")")-5, incomingByte.indexOf(")")));
+    Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)) + " " + incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")));
     
-    TurnOn(incomingByte.substring(1, incomingByte.indexOf(",")).toInt(), incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(")")-7).toInt(), incomingByte.substring(incomingByte.indexOf(")")-5, incomingByte.indexOf(")")).toInt());
+    TurnOn(incomingByte.substring(1, incomingByte.indexOf(",")).toInt(), incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)).toInt(), incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")).toInt());
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
     //     Serial.println("Light");
