@@ -1,6 +1,9 @@
 //Code created by Ian Buckley for an article on makeuseof.com
 
-
+#include<Wire.h>
+const int MPU=0x68; 
+int16_t GyZ,start;
+int count = 1;
 //define pins for the red, green and blue LEDs
 #define RED_LEDsmall 2
 #define GREEN_LEDsmall 3
@@ -44,6 +47,9 @@ int bBrightLarge = 0;
 int fadeSpeed = 3;
 
 String incomingByte = ""; // for incoming serial data
+String smallCode = ""; // for incoming serial data
+String medCode = ""; // for incoming serial data
+String largeCode = ""; // for incoming serial data
 
 void setup() {
   //set up pins to output.
@@ -58,8 +64,13 @@ void setup() {
   pinMode(RED_LEDlarge, OUTPUT);
   pinMode(BLUE_LEDlarge, OUTPUT);
   TurnOn(0, 0, 0);
-  
+  Wire.begin();
+  Wire.beginTransmission(MPU);
+  Wire.write(0x6B); 
+  Wire.write(0);   
+  Wire.endTransmission(true);
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+  delay(1333);
 }
 
 void standBy(){
@@ -146,20 +157,20 @@ void TurnOnTime(int red, int green, int blue, int timeOut){
     delay(timeOut);
 }
 void setSmallColor(int red, int green, int blue) {
-    analogWrite(GREEN_LEDsmall, green);
-    analogWrite(RED_LEDsmall, red);
+    analogWrite(GREEN_LEDsmall, green*0.96);
+    analogWrite(RED_LEDsmall, red*0.86);
     analogWrite(BLUE_LEDsmall, blue);
 }
 
 void setMedColor(int red, int green, int blue) {
-    analogWrite(RED_LEDmed, red);
-    analogWrite(GREEN_LEDmed, green);
+    analogWrite(RED_LEDmed, red*0.86);
+    analogWrite(GREEN_LEDmed, green*0.96);
     analogWrite(BLUE_LEDmed, blue);
 }
 
 void setLargeColor(int red, int green, int blue) {
-    analogWrite(RED_LEDlarge, red);
-    analogWrite(GREEN_LEDlarge, green);
+    analogWrite(RED_LEDlarge, red*0.86);
+    analogWrite(GREEN_LEDlarge, green*0.96);
     analogWrite(BLUE_LEDlarge, blue);
 }
 
@@ -214,7 +225,7 @@ void sparkle(String color, int speed, int timeOut, String endEvent) {
     gBright = 128;
     bBright = 0;
   } else if (color.equals("white")) {
-    rBright = 255;
+    rBright = 240;
     gBright = 255;
     bBright = 255;
   } else if (color.equals("green")) {
@@ -239,7 +250,7 @@ void sparkle(String color, int speed, int timeOut, String endEvent) {
     setLargeColor(rBright, gBright, bBright);
     delay(speed);
     TurnOff();
-    setSmallColor(rBright, gBright, bBright);
+    setMedColor(rBright, gBright, bBright);
     delay(speed);
     TurnOff();
     delay(speed);
@@ -289,29 +300,41 @@ void blink(String color, int speed, int timeOut, String endEvent) {
 }
 
 void loop(){
-  buttonState = digitalRead(buttonPin);
-  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-//  if (buttonState == HIGH) {
-//    TurnOn(255,0,0);
-//    Serial.println("RED");
-//  } else {
-//    //TurnOn(255,255,255);
-//    listen();
-//  }
-//  standBy();
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3B);  
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU,12,true);  
+  if (count == 1) {
+     start=Wire.read()<<8|Wire.read(); 
+  }
+  count+=1;
+  GyZ=Wire.read()<<8|Wire.read(); 
   listen();
-//  TurnOn(190,200,200);
-  //standBy();
+  if(start+500<GyZ || start-500>GyZ) {
+    Serial.println("HIT");
+    sparkle("white", 60, 3, "idk");
+    Serial.println("not");
+  } else {
+    listen();
+    //TurnOn(255,255,255);
+    //Serial.println("not");
+  }
 }
 
-void listen() {
+boolean listen() {
   // send data only when you receive data:
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readStringUntil('\n');
-    Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)) + " " + incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")));
-    
-    TurnOn(incomingByte.substring(1, incomingByte.indexOf(",")).toInt(), incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)).toInt(), incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")).toInt());
+    smallCode = incomingByte.substring(0, incomingByte.indexOf(")(")+1);
+    medCode = incomingByte.substring(incomingByte.indexOf(")(")+1, incomingByte.indexOf(")(", 23)+1);
+    largeCode = incomingByte.substring(incomingByte.indexOf(")(", 23)+1, incomingByte.indexOf(")", 41));
+    //Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)) + " " + incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")));
+
+    setSmallColor(smallCode.substring(1, smallCode.indexOf(",")).toInt(), smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt(), smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt());
+    setMedColor(medCode.substring(1, medCode.indexOf(",")).toInt(), medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt(), medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt());
+    setLargeColor(largeCode.substring(1, largeCode.indexOf(",")).toInt(), largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt(), largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt());
+    return true;
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
     //     Serial.println("Light");
@@ -360,7 +383,7 @@ void listen() {
     // } else {
     //   TurnOn(255, 0, 0)
     // }
-    } // else {
+    } else { return false;}// else {
 //    standBy();
 //  }
   // else {
