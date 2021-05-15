@@ -36,7 +36,6 @@ def play(num):
     i = 5
     df = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
     while (i < len(df)):
-        print(str(i) + " Sending: " + str(df.loc[(i),flag + ' Left']) + str(df.loc[(i),flag + ' Middle']) + str(df.loc[(i),flag + ' Right']))
         ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         #line = ser.readline().decode('utf-8').rstrip()
         #print("Received:" + str(line))
@@ -104,11 +103,11 @@ def listenHitCapture():
     listenBall.start()
     while done == False:
         if (countHits == 0):
-            ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         elif (countHits == 1):
-            ser.write(b"" + "(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         elif (countHits == 2):
-            ser.write(b"" + "(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
         else:
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
@@ -124,7 +123,7 @@ def listenHit():
     listenBall.start()
     while readying == False:
         while done == False:
-            ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
             time.sleep(0.1)
         done = False
         listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
@@ -149,11 +148,11 @@ def listenHitTarget():
     listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
     listenBall.start()
     while done == False:
-        ser.write(b"" + "(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        ser.write(b"" + "(0.0, 0.0, 0.0)(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.flush()
