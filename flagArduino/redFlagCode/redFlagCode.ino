@@ -157,21 +157,24 @@ void TurnOnTime(int red, int green, int blue, int timeOut){
     delay(timeOut);
 }
 void setSmallColor(int red, int green, int blue) {
-    analogWrite(GREEN_LEDsmall, green*0.96);
-    analogWrite(RED_LEDsmall, red*0.86);
-    analogWrite(BLUE_LEDsmall, blue);
+    analogWrite(GREEN_LEDsmall, (int)(green*0.97));
+    analogWrite(RED_LEDsmall, (int)(red*0.97));
+    analogWrite(BLUE_LEDsmall, (int)(blue*0.97));
+    //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
 }
 
 void setMedColor(int red, int green, int blue) {
-    analogWrite(RED_LEDmed, red*0.86);
-    analogWrite(GREEN_LEDmed, green*0.96);
-    analogWrite(BLUE_LEDmed, blue);
+    analogWrite(RED_LEDmed, (int)(red*0.97));
+    analogWrite(GREEN_LEDmed, (int)(green*0.97));
+    analogWrite(BLUE_LEDmed, (int)(blue*0.97));
+    //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
 }
 
 void setLargeColor(int red, int green, int blue) {
-    analogWrite(RED_LEDlarge, red*0.86);
-    analogWrite(GREEN_LEDlarge, green*0.96);
-    analogWrite(BLUE_LEDlarge, blue);
+    analogWrite(RED_LEDlarge, (int)(red*0.97));
+    analogWrite(GREEN_LEDlarge, (int)(green*0.97));
+    analogWrite(BLUE_LEDlarge, (int)(blue*0.97));
+    //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
 }
 
 void pulse(String color, int speed, int timeOut, String endEvent) {
@@ -309,32 +312,40 @@ void loop(){
   }
   count+=1;
   GyZ=Wire.read()<<8|Wire.read(); 
-  listen();
-  if(start+500<GyZ || start-500>GyZ) {
+  //listen();
+  //TurnOn(255,35,0);
+  if (Serial.available() > 0) {
+    listen();
+  } else if(start+1500<GyZ) {
     Serial.println("HIT");
     sparkle("white", 60, 3, "idk");
     Serial.println("not");
-  } else {
-    listen();
-    //TurnOn(255,255,255);
-    //Serial.println("not");
-  }
+  } 
+    //Serial.println(listen());
+    //Serial.println("");
+    //TurnOn(255,0,0);
+    //Serial.println("not");(128.0, 128.0, 128.0)(128.0, 128.0, 128.0)(128.0, 128.0, 128.0)
+  
 }
 
-boolean listen() {
+void listen() {
   // send data only when you receive data:
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readStringUntil('\n');
+    if (incomingByte.indexOf("hit")>=0){
+      sparkle("white", 63, 3,"idk");
+    }
     smallCode = incomingByte.substring(0, incomingByte.indexOf(")(")+1);
     medCode = incomingByte.substring(incomingByte.indexOf(")(")+1, incomingByte.indexOf(")(", 23)+1);
-    largeCode = incomingByte.substring(incomingByte.indexOf(")(", 23)+1, incomingByte.indexOf(")", 41));
+    largeCode = incomingByte.substring(incomingByte.indexOf(")(", 23)+1, incomingByte.indexOf(")", 43)+1);
     //Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)) + " " + incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")));
 
     setSmallColor(smallCode.substring(1, smallCode.indexOf(",")).toInt(), smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt(), smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt());
     setMedColor(medCode.substring(1, medCode.indexOf(",")).toInt(), medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt(), medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt());
     setLargeColor(largeCode.substring(1, largeCode.indexOf(",")).toInt(), largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt(), largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt());
-    return true;
+    //return "(" + String(smallCode.substring(1, smallCode.indexOf(",")).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt()) + ")(" + String(medCode.substring(1, medCode.indexOf(",")).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt()) + ")(" + String(largeCode.substring(1, largeCode.indexOf(",")).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt()) + ")";
+    //return incomingByte + " " + smallCode + " " + medCode + " " + largeCode;
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
     //     Serial.println("Light");
@@ -383,7 +394,7 @@ boolean listen() {
     // } else {
     //   TurnOn(255, 0, 0)
     // }
-    } else { return false;}// else {
+    }// else {
 //    standBy();
 //  }
   // else {

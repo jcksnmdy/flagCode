@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import time
 import threading
-from broadcastDisplay import toColor
+
 import paho.mqtt.client as mqtt
 import sys
 sys.path.append('/home/pi/Desktop/globals/')
@@ -27,6 +27,11 @@ MQTT_PATH = "test_channel"
 ser.write(b"(255, 255, 255)\n")
 
 def play(num):
+    ser.flush()
+    ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+    ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+    ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+    time.sleep(0.1)
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 5
     df = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
@@ -34,26 +39,109 @@ def play(num):
         print(str(i) + " Sending: " + str(df.loc[(i),flag + ' Left']) + str(df.loc[(i),flag + ' Middle']) + str(df.loc[(i),flag + ' Right']))
         ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         #line = ser.readline().decode('utf-8').rstrip()
-        #print(line)
+        #print("Received:" + str(line))
         time.sleep(0.08)
 
         i+=2
     ser.flush()
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
 
+countHits = 0
 def listenHitHelper():
     global done
     while done == False:
         line = ser.readline().decode('utf-8').rstrip()
-        print(line)
         time.sleep(0.1)
         if ("HIT" in line):
-            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "3"')
-            line = ser.readline().decode('utf-8').rstrip()
+            print("I've been impaled")
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
             print(line)
-            #done = True
+            done = True
+
+def listenHitHelperC():
+    global done, countHits
+    while done == False:
+        line = ser.readline().decode('utf-8').rstrip()
+        time.sleep(0.1)
+        if ("HIT" in line):
+            print("I've been impaled")
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
+            print(line)
+            countHits+=1
+            print(countHits)
+
+readying = False
+
+def listenHitKnockout():
+    global countHits
+    countHits = 0
+    ser.flush()
+    global done
+    done = False
+    line = ser.readline().decode('utf-8').rstrip()
+    print(line)
+    listenBall = threading.Thread(group=None, target=listenHitHelperC, name=None)
+    listenBall.start()
+    while done == False:
+        if (countHits%2==0):
+            ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        else:
+            ser.write(b"" + "(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+    ser.flush()
+    print("done")
+
+def listenHitCapture():
+    global countHits
+    countHits = 0
+    ser.flush()
+    global done
+    done = False
+    line = ser.readline().decode('utf-8').rstrip()
+    print(line)
+    listenBall = threading.Thread(group=None, target=listenHitHelperC, name=None)
+    listenBall.start()
+    while done == False:
+        if (countHits == 0):
+            ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        elif (countHits == 1):
+            ser.write(b"" + "(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        elif (countHits == 2):
+            ser.write(b"" + "(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        else:
+            ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+    ser.flush()
+    print("done")
 
 def listenHit():
+    ser.flush()
+    global done, readying
+    done = False
+    readying = False
+    listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
+    listenBall.start()
+    while readying == False:
+        while done == False:
+            ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+            time.sleep(0.1)
+        done = False
+        listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
+        listenBall.start()
+        print("Im waiting again")
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
+    ser.flush()
+    print("done")
+    #client2.loop_stop()
+
+def update():
+    line = ser.readline().decode('utf-8').rstrip()
+    ser.flush()
+    return line
+
+def listenHitTarget():
+    ser.flush()
     global done
     done = False
     line = ser.readline().decode('utf-8').rstrip()
@@ -61,23 +149,13 @@ def listenHit():
     listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
     listenBall.start()
     while done == False:
-        print("Small")
         ser.write(b"" + "(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        print("Med")
         ser.write(b"" + "(0.0, 0.0, 0.0)(255.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        print("Large")
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        print("Off")
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
-        print("Test")
-        if ("HIT" in line):
-            #os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "3"')
-            line = ser.readline().decode('utf-8').rstrip()
-            print(line)
-            done = True
     ser.flush()
     print("done")
 # The callback for when the client receives a CONNACK response from the server.
@@ -90,21 +168,78 @@ def on_connect(client, userdata, flags, rc):
  
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
+    global readying, done
     print(msg.topic+" "+str(msg.payload))
-    if("1" in str(msg.payload)):
+    if ("update" in str(msg.payload)):
+        if ("HIT" in update()):
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
+    if("song" in str(msg.payload) and "1" in str(msg.payload)):
         print("Song")
         play(1)
-    if("2" in str(msg.payload)):
+    if("wait" in str(msg.payload)):
         print("Waiting to be hit")
-        listenHit()
-    # more callbacks, etc
- 
+        #listenHit()
+        targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
+        targetingCallRepeat.start()
+    if("targetGame" in str(msg.payload)):
+        print("Waiting to be hit Target")
+        targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
+        targetingCall.start()
+    if("capture" in str(msg.payload)):
+        print("Waiting to be hit Capture")
+        readying = True
+        done = True
+        targetingCall = threading.Thread(group=None, target=listenHitCapture, name=None)
+        targetingCall.start()
+    if("knockout" in str(msg.payload)):
+        print("Waiting to be hit Knockout")
+        readying = True
+        done = True
+        targetingCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
+        targetingCall.start()
+    if("stop" in str(msg.payload)):
+        print("Stopping")
+        ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
+        readying = True
+        done = True
+    if("shutdown" in str(msg.payload)):
+        print("Shutting down")
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Shutdown: "' + str(flag))
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
+        os.system('sudo shutdown -h now')
+    if(("hit" + "red") in str(msg.payload)):
+        print("hitting from computer")
+        ser.write(b"hit" + "\n".encode('ascii'))
+        readying = True
+        done = True
+    elif(flag in str(msg.payload)):
+        print("ControlMode")
+        if("1" in str(msg.payload)):
+            ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        if("2" in str(msg.payload)):
+            ser.write(b"" + "(255.0, 64.0, 0.0)(255.0, 64.0, 0.0)(255.0, 64.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        if("3" in str(msg.payload)):
+            ser.write(b"" + "(255.0, 128.0, 0.0)(255.0, 128.0, 0.0)(255.0, 128.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        if("4" in str(msg.payload)):
+            ser.write(b"" + "(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+        if("5" in str(msg.payload)):
+            ser.write(b"" + "(0.0, 255.0, 0.0)(0.0, 255.0, 0.0)(0.0, 255.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        if("6" in str(msg.payload)):
+            ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+        if("7" in str(msg.payload)):
+            ser.write(b"" + "(255.0, 0.0, 255.0)(255.0, 0.0, 255.0)(255.0, 0.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+        if("8" in str(msg.payload)):
+            ser.write(b"" + "(255.0, 64.0, 66.0)(255.0, 64.0, 66.0)(255.0, 64.0, 66.0)".encode('ascii') + "\n".encode('ascii'))
+        if("9" in str(msg.payload)):
+            ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
  
 client.connect(MQTT_SERVER, 1883, 60)
- 
+
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
 # Other loop*() functions are available that give a threaded interface and a
