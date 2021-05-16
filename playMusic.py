@@ -99,13 +99,13 @@ def listenHitKnockout():
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("rK")
             if (countHits != prevCount)
-                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:red"')
+                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:rK"')
                 prevCount = countHits
         else:
             ser.write(b"" + "(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("bk")
             if (countHits != prevCount):
-                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:blue"')
+                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:bK"')
                 prevCount = countHits
         time.sleep(0.1)
     ser.flush()
