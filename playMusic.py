@@ -197,7 +197,7 @@ def on_message(client, userdata, msg):
         #listenHit()
         targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
         targetingCallRepeat.start()
-    if("targetGame" in str(msg.payload)):
+    if("targetGame" + flag[0:1].upper() in str(msg.payload)):
         print("Waiting to be hit Target")
         targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
         targetingCall.start()
