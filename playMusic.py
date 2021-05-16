@@ -14,6 +14,7 @@ import time
 
 MQTT_SERVER = "192.168.1.119"
 flag = "red"
+color = flag
 
 try:
     ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
@@ -25,6 +26,14 @@ except OSError:
 MQTT_PATH = "test_channel"
 
 ser.write(b"(255, 255, 255)\n")
+
+def setStatus(stat):
+    global color
+    color = stat
+
+def getStatus(stat):
+    global color
+    return color
 
 def play(num):
     ser.flush()
@@ -85,8 +94,10 @@ def listenHitKnockout():
     while done == False:
         if (countHits%2==0):
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+            setStatus("rK")
         else:
             ser.write(b"" + "(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+            setStatus("bk")
         time.sleep(0.1)
     ser.flush()
     print("done")
@@ -104,12 +115,16 @@ def listenHitCapture():
     while done == False:
         if (countHits == 0):
             ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+            setStatus(flag)
         elif (countHits == 1):
             ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+            setStatus(flag)
         elif (countHits == 2):
             ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
+            setStatus(flag)
         else:
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+            setStatus("off")
         time.sleep(0.1)
     ser.flush()
     print("done")
@@ -125,6 +140,7 @@ def listenHit():
         while done == False:
             ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
             time.sleep(0.1)
+            setStatus(flag)
         done = False
         listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
         listenBall.start()
@@ -148,6 +164,7 @@ def listenHitTarget():
     listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
     listenBall.start()
     while done == False:
+        setStatus(flag)
         ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
         ser.write(b"" + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
@@ -207,7 +224,10 @@ def on_message(client, userdata, msg):
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Shutdown: "' + str(flag))
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
         os.system('sudo shutdown -h now')
-    if(("hit" + "red") in str(msg.payload)):
+    if("status" in str(msg.payload)):
+        print("Returning status")
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Red Flag Status: "' + str(getStatus()))
+    if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
         ser.write(b"hit" + "\n".encode('ascii'))
         readying = True
