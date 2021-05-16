@@ -134,6 +134,7 @@ def listenHitCapture():
         else:
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("off")
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "captured:"' + str(flag))
         time.sleep(0.1)
     ser.flush()
     print("done")
