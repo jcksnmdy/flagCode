@@ -14,7 +14,8 @@ import time
 
 MQTT_SERVER = "192.168.1.119"
 flag = "red"
-knockColorRed = 0 #Red
+delay = 0.075
+knockColorRed = 2 #Red
 # knockColorRed = 1 #Blue
 color = flag
 
@@ -37,7 +38,10 @@ def getStatus(stat):
     global color
     return flag+"Status:"+color
 
+df = pd.read_excel(path + "/flagCode/colorCode.xlsx")
+
 def play(num):
+    global delay
     ser.flush()
     ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
@@ -45,12 +49,12 @@ def play(num):
     time.sleep(0.1)
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 5
-    df = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
-    while (i < len(df)):
-        ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
-        #line = ser.readline().decode('utf-8').rstrip()
-        #print("Received:" + str(line))
-        time.sleep(0.08)
+    songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
+    while (i < len(songCode)):
+        ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        line = ser.readline().decode('utf-8').rstrip()
+        print("Received:" + str(line))
+        time.sleep(delay)
 
         i+=2
     ser.flush()
@@ -62,6 +66,7 @@ def listenHitHelper():
     global done
     while done == False:
         line = ser.readline().decode('utf-8').rstrip()
+        print(line)
         time.sleep(0.1)
         if ("HIT" in line):
             print("I've been impaled")
@@ -95,10 +100,10 @@ def listenHitKnockout():
     listenBall.start()
     prevCount = -1
     while done == False:
-        if (countHits%knockRed==0):
+        if (countHits%knockColorRed==0):
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("rK")
-            if (countHits != prevCount)
+            if (countHits != prevCount):
                 os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:rK"')
                 prevCount = countHits
         else:
@@ -112,7 +117,7 @@ def listenHitKnockout():
     print("done")
 
 def listenHitCapture():
-    global countHits
+    global countHits, done
     countHits = 0
     ser.flush()
     global done
@@ -123,20 +128,20 @@ def listenHitCapture():
     listenBall.start()
     while done == False:
         if (countHits == 0):
-            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+            ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
-        elif (countHits == 1):
-            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        if (countHits == 1):
+            ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
-        elif (countHits == 2):
-            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
+        if (countHits == 2):
+            ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
-        else:
+        if (countHits == 3):
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("off")
-            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "captured:"' + str(flag))
-        time.sleep(0.1)
-    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "captured:"'+flag)
+            done = True
+        time.sleep(0.2)
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "got:"'+flag)
     ser.flush()
     print("done")
 
@@ -149,7 +154,7 @@ def listenHit():
     listenBall.start()
     while readying == False:
         while done == False:
-            ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+            ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
             time.sleep(0.1)
             setStatus(flag)
         done = False
@@ -170,17 +175,17 @@ def listenHitTarget():
     ser.flush()
     global done
     done = False
-    line = ser.readline().decode('utf-8').rstrip()
-    print(line)
     listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
     listenBall.start()
     while done == False:
-        setStatus(flag)
-        ser.write(b"" + str(df.loc[(i),flag + ' Left']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
+        print("Targeting")
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        ser.write(b"" + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Middle']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + "\n".encode('ascii'))
+        line = ser.readline().decode('utf-8').rstrip()
+        print(line)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        ser.write(b"" + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),'off']).encode('ascii') + str(df.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.flush()
@@ -212,7 +217,7 @@ def on_message(client, userdata, msg):
         print("Waiting to be hit Target")
         targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
         targetingCall.start()
-    if("capture" in str(msg.payload)):
+    if("capture" in str(msg.payload) and "hit" not in str(msg.payload)):
         print("Waiting to be hit Capture")
         readying = True
         done = True
@@ -241,9 +246,8 @@ def on_message(client, userdata, msg):
     if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
         ser.write(b"hit" + "\n".encode('ascii'))
-        readying = True
         done = True
-    elif(flag in str(msg.payload)):
+    elif(flag in str(msg.payload) and "hit" not in str(msg.payload) and "Status" not in str(msg.payload)):
         print("ControlMode")
         if("1" in str(msg.payload)):
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))

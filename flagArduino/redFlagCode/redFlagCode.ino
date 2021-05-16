@@ -315,7 +315,7 @@ void loop(){
   //listen();
   //TurnOn(255,35,0);
   if (Serial.available() > 0) {
-    listen();
+    Serial.println(listen());
   } else if(start+1500<GyZ) {
     Serial.println("HIT");
     sparkle("white", 60, 3, "idk");
@@ -328,7 +328,7 @@ void loop(){
   
 }
 
-void listen() {
+String listen() {
   // send data only when you receive data:
   if (Serial.available() > 0) {
     // read the incoming byte:
@@ -345,7 +345,7 @@ void listen() {
     setMedColor(medCode.substring(1, medCode.indexOf(",")).toInt(), medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt(), medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt());
     setLargeColor(largeCode.substring(1, largeCode.indexOf(",")).toInt(), largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt(), largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt());
     //return "(" + String(smallCode.substring(1, smallCode.indexOf(",")).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt()) + ")(" + String(medCode.substring(1, medCode.indexOf(",")).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt()) + ")(" + String(largeCode.substring(1, largeCode.indexOf(",")).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt()) + ")";
-    //return incomingByte + " " + smallCode + " " + medCode + " " + largeCode;
+    return smallCode + " " + medCode + " " + largeCode;
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
     //     Serial.println("Light");
