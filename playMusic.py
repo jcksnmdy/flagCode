@@ -136,6 +136,7 @@ def listenHitCapture():
             setStatus("off")
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "captured:"' + str(flag))
         time.sleep(0.1)
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "captured:"'+flag)
     ser.flush()
     print("done")
 
