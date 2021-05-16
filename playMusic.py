@@ -14,6 +14,8 @@ import time
 
 MQTT_SERVER = "192.168.1.119"
 flag = "red"
+knockColorRed = 0 #Red
+# knockColorRed = 1 #Blue
 color = flag
 
 try:
@@ -33,7 +35,7 @@ def setStatus(stat):
 
 def getStatus(stat):
     global color
-    return color
+    return flag+"Status:"+color
 
 def play(num):
     ser.flush()
@@ -83,7 +85,7 @@ readying = False
 
 def listenHitKnockout():
     global countHits
-    countHits = 0
+    countHits = knockColorRed
     ser.flush()
     global done
     done = False
@@ -91,13 +93,20 @@ def listenHitKnockout():
     print(line)
     listenBall = threading.Thread(group=None, target=listenHitHelperC, name=None)
     listenBall.start()
+    prevCount = -1
     while done == False:
-        if (countHits%2==0):
+        if (countHits%knockRed==0):
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("rK")
+            if (countHits != prevCount)
+                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:red"')
+                prevCount = countHits
         else:
             ser.write(b"" + "(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("bk")
+            if (countHits != prevCount):
+                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:blue"')
+                prevCount = countHits
         time.sleep(0.1)
     ser.flush()
     print("done")
@@ -226,7 +235,7 @@ def on_message(client, userdata, msg):
         os.system('sudo shutdown -h now')
     if("status" in str(msg.payload)):
         print("Returning status")
-        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Red Flag Status: "' + str(getStatus()))
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(getStatus()))
     if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
         ser.write(b"hit" + "\n".encode('ascii'))
