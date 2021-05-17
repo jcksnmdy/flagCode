@@ -39,6 +39,8 @@ def getStatus(stat):
     return flag+"Status:"+color
 
 df = pd.read_excel(path + "/flagCode/colorCode.xlsx")
+print(str(df.loc[(5),flag + ' Left']) + " " + str(df.loc[(5),flag + ' Middle']) + " " + str(df.loc[(5),flag + ' Right']))
+
 listenBall = threading.Thread(group=None, target=getStatus, name=None)
 
 def play(num):
@@ -189,13 +191,11 @@ def listenHitTarget():
     listenBall.start()
     while done == False:
         print("Targeting")
-        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        line = ser.readline().decode('utf-8').rstrip()
-        print(line)
-        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),'off']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.flush()
