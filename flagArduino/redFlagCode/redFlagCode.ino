@@ -301,7 +301,7 @@ void blink(String color, int speed, int timeOut, String endEvent) {
     delay(speed);
   }
 }
-
+boolean listening = false;
 void loop(){
   Wire.beginTransmission(MPU);
   Wire.write(0x3B);  
@@ -317,7 +317,10 @@ void loop(){
   if (Serial.available() > 0) {
     Serial.println(listen());
   } else if(start+1500<GyZ) {
-    Serial.println("HIT");
+    if (listening) {
+      Serial.println("HIT");
+    }
+    delay(500);
     sparkle("white", 60, 3, "idk");
     Serial.println("not");
   } 
@@ -333,9 +336,16 @@ String listen() {
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readStringUntil('\n');
-    if (incomingByte.indexOf("hit")>=0){
+    if (incomingByte.indexOf("HIT")>=0){
       sparkle("white", 63, 3,"idk");
-    }
+      return "HIT";
+    } else if (incomingByte.indexOf("notMode")>=0){
+      listening = false;
+      return "notWriting";
+    }  else if (incomingByte.indexOf("modeing")>=0){
+      listening = true;
+      return "Writing";
+    } 
     smallCode = incomingByte.substring(0, incomingByte.indexOf(")(")+1);
     medCode = incomingByte.substring(incomingByte.indexOf(")(")+1, incomingByte.indexOf(")(", 23)+1);
     largeCode = incomingByte.substring(incomingByte.indexOf(")(", 23)+1, incomingByte.indexOf(")", 43)+1);

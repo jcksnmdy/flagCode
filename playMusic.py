@@ -13,10 +13,10 @@ import serial
 import time
 
 MQTT_SERVER = "192.168.1.119"
-flag = "red"
+flag = "orange"
 delay = 0.075
-knockColorRed = 2 #Red
-# knockColorRed = 1 #Blue
+#knockColorRed = 2 #Red
+knockColorRed = 3 #Blue
 color = flag
 
 try:
@@ -39,6 +39,7 @@ def getStatus(stat):
     return flag+"Status:"+color
 
 df = pd.read_excel(path + "/flagCode/colorCode.xlsx")
+listenBall = threading.Thread(group=None, target=getStatus, name=None)
 
 def play(num):
     global delay
@@ -61,7 +62,7 @@ def play(num):
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
 
-countHits = 0
+countHits = 2
 def listenHitHelper():
     global done
     while done == False:
@@ -73,6 +74,17 @@ def listenHitHelper():
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
             print(line)
             done = True
+
+def listenHitHelperRepeating():
+    global done
+    while done == False:
+        line = ser.readline().decode('utf-8').rstrip()
+        print(line)
+        time.sleep(0.1)
+        if ("HIT" in line):
+            print("I've been impaled")
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
+            print(line)
 
 def listenHitHelperC():
     global done, countHits
@@ -89,44 +101,42 @@ def listenHitHelperC():
 readying = False
 
 def listenHitKnockout():
-    global countHits
-    countHits = knockColorRed
+    global countHits, readying, listenBall
+    countHits = 2
     ser.flush()
     global done
     done = False
-    line = ser.readline().decode('utf-8').rstrip()
-    print(line)
+    readying = False
     listenBall = threading.Thread(group=None, target=listenHitHelperC, name=None)
     listenBall.start()
     prevCount = -1
-    while done == False:
+    while readying == False:
         if (countHits%knockColorRed==0):
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("rK")
             if (countHits != prevCount):
-                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:rK"')
+                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + flag + "Status:rK")
                 prevCount = countHits
         else:
             ser.write(b"" + "(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)(0.0, 0.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("bk")
             if (countHits != prevCount):
-                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "redStatus:bK"')
+                os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + flag + "Status:bK")
                 prevCount = countHits
         time.sleep(0.1)
     ser.flush()
     print("done")
 
 def listenHitCapture():
-    global countHits, done
+    global countHits, done, readying, listenBall
+    readying = False
     countHits = 0
     ser.flush()
-    global done
     done = False
-    line = ser.readline().decode('utf-8').rstrip()
-    print(line)
     listenBall = threading.Thread(group=None, target=listenHitHelperC, name=None)
     listenBall.start()
-    while done == False:
+    while readying == False:
+        print(str(countHits))
         if (countHits == 0):
             ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
@@ -140,29 +150,28 @@ def listenHitCapture():
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("off")
             done = True
+            readying = True
         time.sleep(0.2)
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "got:"'+flag)
     ser.flush()
+    listenBall.join()
     print("done")
 
 def listenHit():
     ser.flush()
-    global done, readying
+    global done, readying, listenBall
     done = False
     readying = False
-    listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
+    listenBall = threading.Thread(group=None, target=listenHitHelperRepeating, name=None)
     listenBall.start()
     while readying == False:
-        while done == False:
-            ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
-            time.sleep(0.1)
-            setStatus(flag)
-        done = False
-        listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
-        listenBall.start()
-        print("Im waiting again")
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        setStatus(flag)
+        
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
     ser.flush()
+    listenBall.join()
     print("done")
     #client2.loop_stop()
 
@@ -172,6 +181,7 @@ def update():
     return line
 
 def listenHitTarget():
+    global listenBall
     ser.flush()
     global done
     done = False
@@ -189,6 +199,7 @@ def listenHitTarget():
         time.sleep(0.1)
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.flush()
+    listenBall.join()
     print("done")
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -197,10 +208,15 @@ def on_connect(client, userdata, flags, rc):
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
- 
+        
+knockoutCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
+targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
+targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
+targetingCallCapture = threading.Thread(group=None, target=listenHitCapture, name=None)
+
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global readying, done
+    global listenBall, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall
     print(msg.topic+" "+str(msg.payload))
     if ("update" in str(msg.payload)):
         if ("HIT" in update()):
@@ -210,31 +226,54 @@ def on_message(client, userdata, msg):
         play(1)
     if("wait" in str(msg.payload)):
         print("Waiting to be hit")
+        ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
         #listenHit()
+        ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
         targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
         targetingCallRepeat.start()
     if("targetGame" + flag[0:1].upper() in str(msg.payload)):
         print("Waiting to be hit Target")
+        ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
         targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
         targetingCall.start()
     if("capture" in str(msg.payload) and "hit" not in str(msg.payload)):
         print("Waiting to be hit Capture")
-        readying = True
-        done = True
-        targetingCall = threading.Thread(group=None, target=listenHitCapture, name=None)
-        targetingCall.start()
+        ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+        targetingCallCapture = threading.Thread(group=None, target=listenHitCapture, name=None)
+        targetingCallCapture.start()
     if("knockout" in str(msg.payload)):
         print("Waiting to be hit Knockout")
-        readying = True
-        done = True
-        targetingCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
-        targetingCall.start()
+        ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+        knockoutCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
+        knockoutCall.start()
     if("stop" in str(msg.payload)):
         print("Stopping")
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
         readying = True
         done = True
+        readying = True
+        done = True
+        time.sleep(0.01)
+        if (targetingCall.is_alive()):
+            targetingCall.join()
+        if (knockoutCall.is_alive()):
+            knockoutCall.join()
+        if (targetingCallRepeat.is_alive()):
+            targetingCallRepeat.join()
+        if (targetingCallCapture.is_alive()):
+            targetingCallCapture.join()
+        if (listenBall.is_alive()):
+            listenBall.join()
+        if (listenBall.is_alive()):
+            listenBall.join()
+        if (listenBall.is_alive()):
+            listenBall.join()
+
     if("shutdown" in str(msg.payload)):
         print("Shutting down")
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Shutdown: "' + str(flag))
@@ -245,8 +284,7 @@ def on_message(client, userdata, msg):
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(getStatus()))
     if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
-        ser.write(b"hit" + "\n".encode('ascii'))
-        done = True
+        ser.write(b"HIT" + "\n".encode('ascii'))
     elif(flag in str(msg.payload) and "hit" not in str(msg.payload) and "Status" not in str(msg.payload)):
         print("ControlMode")
         if("1" in str(msg.payload)):
