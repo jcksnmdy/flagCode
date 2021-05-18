@@ -1,0 +1,6 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=myprogram
+Exec=lxterminal -e bash -c '/home/pi/Desktop/flagCode/runListeningAction.sh;$SHELL'
+Terminal=true

@@ -7,14 +7,14 @@ import paho.mqtt.client as mqtt
 import sys
 sys.path.append('/home/pi/Desktop/globals/')
 #sys.path.append('/home/pi/Desktop/globals/')
-from constants import path, arduinoNum
+from constants import path, arduinoNum, globalDelay
 #!/usr/bin/env python3
 import serial
 import time
 
 MQTT_SERVER = "192.168.1.119"
-flag = "orange"
-delay = 0.075
+flag = "blue"
+delay = globalDelay
 #knockColorRed = 2 #Red
 knockColorRed = 3 #Blue
 color = flag
@@ -204,7 +204,12 @@ def listenHitTarget():
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
- 
+    time.sleep(1)
+    ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+
+    time.sleep(1)
+    ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
@@ -216,7 +221,7 @@ targetingCallCapture = threading.Thread(group=None, target=listenHitCapture, nam
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global listenBall, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall
+    global listenBall, delay, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall
     print(msg.topic+" "+str(msg.payload))
     if ("update" in str(msg.payload)):
         if ("HIT" in update()):
@@ -285,6 +290,8 @@ def on_message(client, userdata, msg):
     if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
         ser.write(b"HIT" + "\n".encode('ascii'))
+    if ("delay:" in str(msg.payload)):
+        delay = msg.payload[6]
     elif(flag in str(msg.payload) and "hit" not in str(msg.payload) and "Status" not in str(msg.payload)):
         print("ControlMode")
         if("1" in str(msg.payload)):
@@ -317,3 +324,15 @@ client.connect(MQTT_SERVER, 1883, 60)
 # Other loop*() functions are available that give a threaded interface and a
 # manual interface.
 client.loop_forever()
+
+
+
+"""
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=myprogram
+Exec=lxterminal -e bash -c '/home/pi/Desktop/flagCode/runListeningAction;$SHELL'
+Terminal=true
+"""
+
