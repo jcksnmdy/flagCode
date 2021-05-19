@@ -13,7 +13,7 @@ import serial
 import time
 
 MQTT_SERVER = "192.168.1.119"
-flag = "blue"
+flag = str(sys.argv[2])
 delay = globalDelay
 #knockColorRed = 2 #Red
 knockColorRed = 3 #Blue
@@ -287,11 +287,18 @@ def on_message(client, userdata, msg):
     if("status" in str(msg.payload)):
         print("Returning status")
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(getStatus()))
+    if(("test:"+flag) in str(msg.payload)):
+        print("Returning connected")
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(3)
+        line = ser.readline().decode('utf-8').rstrip()
+        if (len(line)>5):
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready"))
+    if ("delay:" in str(msg.payload)):
+        delay = msg.payload[6]
     if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
         ser.write(b"HIT" + "\n".encode('ascii'))
-    if ("delay:" in str(msg.payload)):
-        delay = msg.payload[6]
     elif(flag in str(msg.payload) and "hit" not in str(msg.payload) and "Status" not in str(msg.payload)):
         print("ControlMode")
         if("1" in str(msg.payload)):
