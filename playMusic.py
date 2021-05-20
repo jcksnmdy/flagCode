@@ -13,7 +13,7 @@ import serial
 import time
 
 MQTT_SERVER = "192.168.1.119"
-flag = str(sys.argv[2])
+flag = "blue"
 delay = globalDelay
 #knockColorRed = 2 #Red
 knockColorRed = 3 #Blue
@@ -104,7 +104,7 @@ readying = False
 
 def listenHitKnockout():
     global countHits, readying, listenBall
-    countHits = 2
+    countHits = knockColorRed
     ser.flush()
     global done
     done = False
@@ -113,7 +113,7 @@ def listenHitKnockout():
     listenBall.start()
     prevCount = -1
     while readying == False:
-        if (countHits%knockColorRed==0):
+        if (countHits%2==0):
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("rK")
             if (countHits != prevCount):
@@ -125,7 +125,7 @@ def listenHitKnockout():
             if (countHits != prevCount):
                 os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + flag + "Status:bK")
                 prevCount = countHits
-        time.sleep(0.1)
+        time.sleep(0.3)
     ser.flush()
     print("done")
 
@@ -278,7 +278,11 @@ def on_message(client, userdata, msg):
             listenBall.join()
         if (listenBall.is_alive()):
             listenBall.join()
-
+    if (("restart:"+flag) in str(msg.payload)):
+        print("Restarting: " + flag)
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Restart: "' + str(flag))
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
+        os.system('sudo reboot')
     if("shutdown" in str(msg.payload)):
         print("Shutting down")
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Shutdown: "' + str(flag))
@@ -289,6 +293,69 @@ def on_message(client, userdata, msg):
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(getStatus()))
     if(("test:"+flag) in str(msg.payload)):
         print("Returning connected")
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+
+        ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(3)
         line = ser.readline().decode('utf-8').rstrip()

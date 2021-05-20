@@ -1,1 +1,1 @@
-python3 /home/pi/Desktop/flagCode/startFromPython.py
+python3 /home/pi/Desktop/flagCode/playMusic.py
