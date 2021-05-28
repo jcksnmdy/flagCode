@@ -149,12 +149,12 @@ def listenHitCapture():
             ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
         if (countHits == 3):
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "got:"'+flag)
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus("off")
             done = True
             readying = True
         time.sleep(0.2)
-    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "got:"'+flag)
     ser.flush()
     listenBall.join()
     print("done")
@@ -181,6 +181,24 @@ def update():
     line = ser.readline().decode('utf-8').rstrip()
     ser.flush()
     return line
+
+def listenHitPopup():
+    global listenBall, done
+    ser.flush()
+    done = False
+    listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
+    listenBall.start()
+    while done == False:
+        print("popping")
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(255.0, 255.0, 255.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str("(255.0, 255.0, 255.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + str("(255.0, 255.0, 255.0)").encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+    ser.flush()
+    listenBall.join()
+    print("done")
 
 def listenHitTarget():
     global listenBall
@@ -291,6 +309,14 @@ def on_message(client, userdata, msg):
     if("status" in str(msg.payload)):
         print("Returning status")
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(getStatus()))
+
+    if(("popup:"+flag) in str(msg.payload)):
+        print("Popping")
+        ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
+        
+        listenHitPopup()
+
     if(("test:"+flag) in str(msg.payload)):
         print("Returning connected")
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
