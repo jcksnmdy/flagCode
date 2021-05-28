@@ -7,13 +7,12 @@ import paho.mqtt.client as mqtt
 import sys
 sys.path.append('/home/pi/Desktop/globals/')
 #sys.path.append('/home/pi/Desktop/globals/')
-from constants import path, arduinoNum, globalDelay
+from constants import path, arduinoNum, globalDelay, flag
 #!/usr/bin/env python3
 import serial
 import time
 
 MQTT_SERVER = "192.168.1.119"
-flag = "blue"
 delay = globalDelay
 #knockColorRed = 2 #Red
 knockColorRed = 3 #Blue
