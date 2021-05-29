@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import time
 import threading
-
+os.system('git pull')
 import paho.mqtt.client as mqtt
 import sys
 sys.path.append('/home/pi/Desktop/globals/')
@@ -11,7 +11,7 @@ from constants import path, arduinoNum, globalDelay, flag
 #!/usr/bin/env python3
 import serial
 import time
-
+print(flag)
 MQTT_SERVER = "192.168.1.119"
 delay = globalDelay
 #knockColorRed = 2 #Red
@@ -391,7 +391,7 @@ def on_message(client, userdata, msg):
     if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
         ser.write(b"HIT" + "\n".encode('ascii'))
-    elif(flag in str(msg.payload) and "hit" not in str(msg.payload) and "Status" not in str(msg.payload)):
+    elif(flag in str(msg.payload) and "Status" not in str(msg.payload)):
         print("ControlMode")
         if("1" in str(msg.payload)):
             ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
