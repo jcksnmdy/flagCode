@@ -1,1 +1,2 @@
-python3 /home/pi/Desktop/flagCode/playMusic.py
+git pull
+python3 playMusic.py

@@ -2,9 +2,9 @@ import pandas as pd
 import os
 import time
 import threading
-os.system('git pull')
 import paho.mqtt.client as mqtt
 import sys
+import socket
 sys.path.append('/home/pi/Desktop/globals/')
 #sys.path.append('/home/pi/Desktop/globals/')
 from constants import path, arduinoNum, globalDelay, flag
@@ -12,6 +12,33 @@ from constants import path, arduinoNum, globalDelay, flag
 import serial
 import time
 print(flag)
+
+import urllib.request
+def connect(host='http://google.com'):
+    try:
+        urllib.request.urlopen(host) #Python 3.x
+        return True
+    except:
+        return False
+# test
+if connect():
+    print("connected") 
+else:
+    print("no internet!")
+    try:
+        ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+        ser.flush()
+    except OSError:
+        ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+        ser.flush()
+    ser.write(b"(255.0, 0.0, 255.0)\n")
+    time.sleep(60)
+    if connect():
+        print("connected") 
+    else:
+        print("No connection")
+
+time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
 delay = globalDelay
 #knockColorRed = 2 #Red
@@ -27,7 +54,15 @@ except OSError:
 
 MQTT_PATH = "test_channel"
 
-ser.write(b"(255, 255, 255)\n")
+
+ip_address = '';
+def get_ip_address():
+    ip_address = '';
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('8.8.8.8',80))
+    ip_address = s.getsockname()[0]
+    s.close()
+    return ip_address
 
 def setStatus(stat):
     global color
@@ -227,6 +262,17 @@ def on_connect(client, userdata, flags, rc):
     time.sleep(1)
     ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
 
+    address = get_ip_address()
+    print("Returning connected: " + address)
+        
+    ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+    time.sleep(3)
+    line = ser.readline().decode('utf-8').rstrip()
+    if (len(line)>5):
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready:"+str(address)))
+    else:
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":arduinoNotConnected:"+str(address)))
+        
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
@@ -235,10 +281,11 @@ knockoutCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
 targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
 targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
 targetingCallCapture = threading.Thread(group=None, target=listenHitCapture, name=None)
+popupCall = threading.Thread(group=None, target=listenHitPopup, name=None)
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global listenBall, delay, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall
+    global popupCall, listenBall, delay, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall
     print(msg.topic+" "+str(msg.payload))
     if ("update" in str(msg.payload)):
         if ("HIT" in update()):
@@ -289,6 +336,8 @@ def on_message(client, userdata, msg):
             targetingCallRepeat.join()
         if (targetingCallCapture.is_alive()):
             targetingCallCapture.join()
+        if (popupCall.is_alive()):
+            popupCall.join()
         if (listenBall.is_alive()):
             listenBall.join()
         if (listenBall.is_alive()):
@@ -310,12 +359,24 @@ def on_message(client, userdata, msg):
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(getStatus()))
 
     if(("popup:"+flag) in str(msg.payload)):
-        print("Popping")
+        print("Pop uping")
         ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
         ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)(255.0, 255.0, 255.0)".encode('ascii') + "\n".encode('ascii'))
-        
-        listenHitPopup()
+        popupCall = threading.Thread(group=None, target=listenHitPopup, name=None)
+        popupCall.start()
 
+    if(("testSilent:"+flag) in str(msg.payload)):
+        address = get_ip_address()
+        print("Returning connected: " + address)
+        
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(3)
+        line = ser.readline().decode('utf-8').rstrip()
+        if (len(line)>5):
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready:"+str(address)))
+        else:
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":arduinoNotConnected:"+str(address)))
+        
     if(("test:"+flag) in str(msg.payload)):
         print("Returning connected")
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
@@ -380,12 +441,6 @@ def on_message(client, userdata, msg):
         time.sleep(0.1)
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
-
-        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
-        time.sleep(3)
-        line = ser.readline().decode('utf-8').rstrip()
-        if (len(line)>5):
-            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready"))
     if ("delay:" in str(msg.payload)):
         delay = msg.payload[6]
     if(("hit" + flag) in str(msg.payload)):
