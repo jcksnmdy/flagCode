@@ -7,12 +7,13 @@ import sys
 import socket
 sys.path.append('/home/pi/Desktop/globals/')
 #sys.path.append('/home/pi/Desktop/globals/')
-from constants import path, arduinoNum, globalDelay, flag
+from constants import path, arduinoNum, globalDelay, flag, knockColor
 #!/usr/bin/env python3
 import serial
 import time
 print(flag)
-
+print("Pausing for 15 seconds")
+time.sleep(15)
 import urllib.request
 def connect(host='http://google.com'):
     try:
@@ -41,9 +42,10 @@ else:
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
 delay = globalDelay
-#knockColorRed = 2 #Red
-knockColorRed = 3 #Blue
+
 color = flag
+knockColorRed = knockColor
+
 
 try:
     ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
