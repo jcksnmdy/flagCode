@@ -87,7 +87,7 @@ def play(num):
     ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     time.sleep(0.1)
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
-    i = 5
+    i = 50
     songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
@@ -95,7 +95,7 @@ def play(num):
         print("Received:" + str(line))
         time.sleep(delay)
 
-        i+=2
+        i+=3
     ser.flush()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
