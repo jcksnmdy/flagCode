@@ -301,7 +301,8 @@ def on_message(client, userdata, msg):
         play(1)
     if("load" in str(msg.payload) and "1" in str(msg.payload)):
     	print("Loading")
-        loadSong(1)
+    	loadSong(1)
+
     if("wait" in str(msg.payload)):
         print("Waiting to be hit")
         ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
