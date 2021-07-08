@@ -78,7 +78,7 @@ df = pd.read_excel(path + "/flagCode/colorCode.xlsx")
 print(str(df.loc[(5),flag + ' Left']) + " " + str(df.loc[(5),flag + ' Middle']) + " " + str(df.loc[(5),flag + ' Right']))
 
 listenBall = threading.Thread(group=None, target=getStatus, name=None)
-songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
+songCode = pd.read_excel(path + "/flagCode/song" + str(1) + ".xlsx")
 
 def loadSong(num):
 	global songCode
