@@ -95,7 +95,7 @@ def play(num):
         print("Received:" + str(line))
         time.sleep(delay)
 
-        i+=2
+        i+=2.5
     ser.flush()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
