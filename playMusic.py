@@ -41,7 +41,7 @@ else:
 
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
-delay = 0.0215 #with 1.5 skip
+delay = 0.0115 #with 1.5 skip
 #delay = 0.0314 # with 2 skip
 
 color = flag
