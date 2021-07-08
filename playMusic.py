@@ -42,7 +42,6 @@ else:
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
 delay = 0.0 #with 1.5 skip
-#delay = 0.0314 # with 2 skip
 
 color = flag
 knockColorRed = knockColor
@@ -96,7 +95,7 @@ def play(num):
         print("Received:" + str(line))
         time.sleep(delay)
 
-        i+=1.5
+        i+=2
     ser.flush()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
