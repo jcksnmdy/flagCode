@@ -41,7 +41,7 @@ else:
 
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
-delay = 0.0915
+delay = 0.065
 
 color = flag
 knockColorRed = knockColor
