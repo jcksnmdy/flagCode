@@ -92,10 +92,10 @@ def play(num):
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
-        print("Received:" + str(line))
+        #print("Received:" + str(line))
         time.sleep(delay)
 
-        i+=1
+        i+=2
     ser.flush()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
