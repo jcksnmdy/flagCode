@@ -41,7 +41,7 @@ else:
 
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
-delay = 0.0
+delay = 0.0315
 
 color = flag
 knockColorRed = knockColor
@@ -90,14 +90,12 @@ def play(num):
     i = 80
     songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
     while (i < len(songCode)):
-        ser.write(b"" + str(songCode.loc[(int(i)),flag + ' Left']).encode('ascii') + str(songCode.loc[(int(i)),flag + ' Middle']).encode('ascii') + str(songCode.loc[(int(i)),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
-        #print("Received:" + str(line))
+        print("Received:" + str(line))
         time.sleep(delay)
 
         i+=1
-        if (i%500==0):
-        	i+=10
     ser.flush()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
