@@ -78,9 +78,14 @@ df = pd.read_excel(path + "/flagCode/colorCode.xlsx")
 print(str(df.loc[(5),flag + ' Left']) + " " + str(df.loc[(5),flag + ' Middle']) + " " + str(df.loc[(5),flag + ' Right']))
 
 listenBall = threading.Thread(group=None, target=getStatus, name=None)
+songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
+
+def loadSong(num):
+	global songCode
+	songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
 
 def play(num):
-    global delay
+    global delay, songCode
     ser.flush()
     ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
@@ -88,7 +93,6 @@ def play(num):
     time.sleep(0.1)
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 80
-    songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
@@ -295,6 +299,9 @@ def on_message(client, userdata, msg):
     if("song" in str(msg.payload) and "1" in str(msg.payload)):
         print("Song")
         play(1)
+    if("load" in str(msg.payload) and "1" in str(msg.payload)):
+    	print("Loading")
+        loadSong(1)
     if("wait" in str(msg.payload)):
         print("Waiting to be hit")
         ser.write(b"" + "modeing".encode('ascii') + "\n".encode('ascii'))
