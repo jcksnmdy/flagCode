@@ -296,12 +296,15 @@ def on_message(client, userdata, msg):
     if ("update" in str(msg.payload)):
         if ("HIT" in update()):
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
-    if("song" in str(msg.payload) and "1" in str(msg.payload)):
-        print("Song")
-        play(1)
-    if("load" in str(msg.payload) and "1" in str(msg.payload)):
-    	print("Loading")
-    	loadSong(1)
+    if("song" in str(msg.payload):
+    	Rmsg = str(msg.payload)
+        print("Song" + str(Rmsg[4]))
+        play(int(Rmsg[4]))
+
+    if("load" in str(msg.payload):
+    	Rmsg = str(msg.payload)
+    	print("Loading"  + str(Rmsg[4]))
+    	loadSong(int(Rmsg[4]))
 
     if("wait" in str(msg.payload)):
         print("Waiting to be hit")
