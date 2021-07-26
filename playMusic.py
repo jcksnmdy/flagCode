@@ -99,7 +99,7 @@ def play(num):
         #print("Received:" + str(line))
         time.sleep(delay)
 
-        i+=2
+        i+=1
     ser.flush()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
@@ -296,12 +296,12 @@ def on_message(client, userdata, msg):
     if ("update" in str(msg.payload)):
         if ("HIT" in update()):
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
-    if("song" in str(msg.payload):
+    if("song" in str(msg.payload)):
     	Rmsg = str(msg.payload)
         print("Song" + str(Rmsg[4]))
         play(int(Rmsg[4]))
 
-    if("load" in str(msg.payload):
+    if("load" in str(msg.payload)):
     	Rmsg = str(msg.payload)
     	print("Loading"  + str(Rmsg[4]))
     	loadSong(int(Rmsg[4]))
