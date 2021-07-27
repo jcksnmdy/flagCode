@@ -41,7 +41,7 @@ else:
 
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
-delay = 0.06165
+delay = 0.06163
 
 color = flag
 knockColorRed = knockColor
@@ -179,12 +179,18 @@ def listenHitCapture():
         if (countHits == 0):
             ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "3life:"'+flag)
+
         if (countHits == 1):
             ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "2life:"'+flag)
+
         if (countHits == 2):
             ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
+            os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "1life:"'+flag)
+
         if (countHits == 3):
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "got:"'+flag)
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
