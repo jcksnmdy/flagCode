@@ -345,7 +345,7 @@ String listen() {
     }  else if (incomingByte.indexOf("modeing")>=0){
       listening = true;
       return "Writing";
-    } 
+    } else {
     smallCode = incomingByte.substring(0, incomingByte.indexOf(")(")+1);
     medCode = incomingByte.substring(incomingByte.indexOf(")(")+1, incomingByte.indexOf(")(", 23)+1);
     largeCode = incomingByte.substring(incomingByte.indexOf(")(", 23)+1, incomingByte.indexOf(")", 43)+1);
@@ -354,8 +354,10 @@ String listen() {
     setSmallColor(smallCode.substring(1, smallCode.indexOf(",")).toInt(), smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt(), smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt());
     setMedColor(medCode.substring(1, medCode.indexOf(",")).toInt(), medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt(), medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt());
     setLargeColor(largeCode.substring(1, largeCode.indexOf(",")).toInt(), largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt(), largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt());
+    
     //return "(" + String(smallCode.substring(1, smallCode.indexOf(",")).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt()) + ")(" + String(medCode.substring(1, medCode.indexOf(",")).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt()) + ")(" + String(largeCode.substring(1, largeCode.indexOf(",")).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt()) + ")";
     return smallCode + " " + medCode + " " + largeCode;
+    }
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
     //     Serial.println("Light");
