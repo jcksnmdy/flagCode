@@ -336,7 +336,7 @@ String listen() {
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readStringUntil('\n');
-    if (incomingByte.indexOf("HIT")>=0){
+    if (incomingByte.indexOf("smack")>=0){
       sparkle("white", 63, 3,"idk");
       return "blinked";
     } else if (incomingByte.indexOf("notMode")>=0){

@@ -463,7 +463,7 @@ def on_message(client, userdata, msg):
     if(("hit" + flag) in str(msg.payload)):
         print("hitting from computer")
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
-        ser.write(b"HIT" + "\n".encode('ascii'))
+        ser.write(b"smack" + "\n".encode('ascii'))
     elif(flag in str(msg.payload) and "Status" not in str(msg.payload)):
         print("ControlMode")
         if("1" in str(msg.payload)):
