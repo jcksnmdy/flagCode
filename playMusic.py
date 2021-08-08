@@ -197,7 +197,7 @@ def listenHitCapture():
             setStatus("off")
             done = True
             readying = True
-        time.sleep(0.2)
+        time.sleep(1)
     ser.flush()
     listenBall.join()
     print("done")
