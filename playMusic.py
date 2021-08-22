@@ -41,7 +41,7 @@ else:
 
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
-delay = 0.06163
+delay = 0.0616
 
 color = flag
 knockColorRed = knockColor
@@ -302,12 +302,15 @@ def on_message(client, userdata, msg):
     if("song" in str(msg.payload)):
         Rmsg = str(msg.payload)
         print("Song" + str(Rmsg[6]))
+        ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
         play(int(Rmsg[6]))
 
     if("load" in str(msg.payload)):
         Rmsg = str(msg.payload)
         print("Loading"  + str(Rmsg[6]))
+        ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
         loadSong(int(Rmsg[6]))
+
 
     if("wait" in str(msg.payload)):
         print("Waiting to be hit")
