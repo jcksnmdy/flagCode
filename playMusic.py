@@ -41,7 +41,7 @@ else:
 
 time.sleep(3)
 MQTT_SERVER = "192.168.1.119"
-delay = 0.06153
+delay = 0.0615
 
 color = flag
 knockColorRed = knockColor
@@ -87,21 +87,19 @@ def loadSong(num):
 def play(num):
     global delay, songCode
     ser.flush()
-    ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
-        line = ser.readline().decode('utf-8').rstrip()
+        #line = ser.readline().decode('utf-8').rstrip()
         #print("Received:" + str(line))
         time.sleep(delay)
-
         i+=1
     ser.flush()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
     print("Done")
 
-countHits = 2
+countHits = 0
 def listenHitHelper():
     global done
     while done == False:
