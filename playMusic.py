@@ -471,13 +471,6 @@ def on_message(client, userdata, msg):
         time.sleep(0.1)
         line = ser.readline().decode('utf-8').rstrip()
         print(line)
-        line = ser.readline().decode('utf-8').rstrip()
-        print(line)
-        line = ser.readline().decode('utf-8').rstrip()
-        print(line)
-        line = ser.readline().decode('utf-8').rstrip()
-        print(line)
-        print(line)
 
         
     elif(flag in str(msg.payload) and "Status" not in str(msg.payload)):
