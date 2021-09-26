@@ -91,8 +91,8 @@ def play(num):
     i = 0
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
-        #line = ser.readline().decode('utf-8').rstrip()
-        #print("Received:" + str(line))
+        line = ser.readline().decode('utf-8').rstrip()
+        print("Received:" + str(line))
         time.sleep(delay)
         i+=1
     ser.flush()
