@@ -40,7 +40,7 @@ else:
         print("No connection")
 
 time.sleep(3)
-MQTT_SERVER = "192.168.1.119"
+MQTT_SERVER = "192.168.99.93"
 delay = 0.0615
 
 color = flag
