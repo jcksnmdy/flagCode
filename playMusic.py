@@ -284,6 +284,32 @@ def on_connect(client, userdata, flags, rc):
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
+
+def prepareTurn():
+    global listenBall
+    ser.flush()
+    global done
+    print("preparing")
+    ser.write(b"" + str(df.loc[(5),'white Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Right']).encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str(df.loc[(5),'white Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Right']).encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str(df.loc[(5),'white Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Right']).encode('ascii') + "\n".encode('ascii'))
+    time.sleep(1)
+    ser.flush()
+    print("done")
         
 knockoutCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
 targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
@@ -291,11 +317,12 @@ targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
 targetingCallCapture = threading.Thread(group=None, target=listenHitCapture, name=None)
 popupCall = threading.Thread(group=None, target=listenHitPopup, name=None)
 songStart = threading.Thread(group=None, target=play, args=(6,), name=None)
+prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
 
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global popupCall, listenBall, delay, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall, songStart
+    global popupCall, listenBall, delay, prepareLook, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall, songStart
     print(msg.topic+" "+str(msg.payload))
     if ("update" in str(msg.payload)):
         if ("HIT" in update()):
@@ -309,18 +336,10 @@ def on_message(client, userdata, msg):
 
     if("load" in str(msg.payload)):
         Rmsg = str(msg.payload)
-        print("Loading"  + str(Rmsg[6]))
-        line = ser.readline().decode('utf-8').rstrip()
-        line = ser.readline().decode('utf-8').rstrip()
-        print("Received:" + str(line))
-        ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
-        line = ser.readline().decode('utf-8').rstrip()
-        line = ser.readline().decode('utf-8').rstrip()
-        print("Received:" + str(line))
-        ser.write("prepare\n".encode('ascii'))    
+        print("Loading"  + str(Rmsg[6]))   
+        prepareLook = threading.Thread(group=None, target=listenHitCapture, name=None)
+        prepareLook.start()
         loadSong(int(Rmsg[6]))
-        line = ser.readline().decode('utf-8').rstrip()
-        print("Received:" + str(line))
 
 
 
