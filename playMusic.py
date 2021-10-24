@@ -12,7 +12,6 @@ from constants import path, arduinoNum, globalDelay, flag, knockColor
 import serial
 import time
 print(flag)
-print("Pausing for 15 seconds")
 time.sleep(15)
 import urllib.request
 def connect(host='http://google.com'):
@@ -57,9 +56,9 @@ except OSError:
 MQTT_PATH = "test_channel"
 
 
-ip_address = '';
+ip_address = ''
 def get_ip_address():
-    ip_address = '';
+    ip_address = ''
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('8.8.8.8',80))
     ip_address = s.getsockname()[0]
@@ -291,6 +290,8 @@ targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
 targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
 targetingCallCapture = threading.Thread(group=None, target=listenHitCapture, name=None)
 popupCall = threading.Thread(group=None, target=listenHitPopup, name=None)
+songStart = threading.Thread(group=None, target=play, args=(6,), name=None)
+
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
@@ -303,7 +304,8 @@ def on_message(client, userdata, msg):
         Rmsg = str(msg.payload)
         print("Song" + str(Rmsg[6]))
         ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
-        play(int(Rmsg[6]))
+        songStart = threading.Thread(group=None, target=play, args=(int(Rmsg[6]),), name=None)
+        songStart.start()
 
     if("load" in str(msg.payload)):
         Rmsg = str(msg.payload)
@@ -363,6 +365,8 @@ def on_message(client, userdata, msg):
             listenBall.join()
         if (listenBall.is_alive()):
             listenBall.join()
+        if (songStart.is_alive()):
+            songStart.join()
     if (("restart:"+flag) in str(msg.payload)):
         print("Restarting: " + flag)
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Restart: "' + str(flag))
