@@ -295,7 +295,7 @@ songStart = threading.Thread(group=None, target=play, args=(6,), name=None)
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global popupCall, listenBall, delay, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall
+    global popupCall, listenBall, delay, readying, done, targetingCallRepeat, targetingCallCapture, targetingCall, knockoutCall, songStart
     print(msg.topic+" "+str(msg.payload))
     if ("update" in str(msg.payload)):
         if ("HIT" in update()):
