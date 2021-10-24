@@ -346,6 +346,8 @@ String listen() {
     }  else if (incomingByte.indexOf("modeing")>=0){
       listening = true;
       return "Writing";
+    } else if (incomingByte.indexOf("prepareSong")>=0){
+      pulse("white", 1000, 3, "LOL")
     } else {
     smallCode = incomingByte.substring(0, incomingByte.indexOf(")(")+1);
     medCode = incomingByte.substring(incomingByte.indexOf(")(")+1, incomingByte.indexOf(")(", 23)+1);
