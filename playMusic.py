@@ -81,9 +81,6 @@ songCode = pd.read_excel(path + "/flagCode/song" + str(1) + ".xlsx")
 
 def loadSong(num):
     global songCode
-    ser.write(b"" + "prepareSong".encode('ascii') + "\n".encode('ascii'))    
-    line = ser.readline().decode('utf-8').rstrip()
-    print("Received:" + str(line))
     songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
 
 def play(num):
@@ -314,6 +311,9 @@ def on_message(client, userdata, msg):
         Rmsg = str(msg.payload)
         print("Loading"  + str(Rmsg[6]))
         ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "prepareSong".encode('ascii') + "\n".encode('ascii'))    
+        line = ser.readline().decode('utf-8').rstrip()
+        print("Received:" + str(line))
         loadSong(int(Rmsg[6]))
 
 
