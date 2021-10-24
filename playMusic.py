@@ -319,6 +319,9 @@ def on_message(client, userdata, msg):
         print("Received:" + str(line))
         ser.write("prepare\n".encode('ascii'))    
         loadSong(int(Rmsg[6]))
+        line = ser.readline().decode('utf-8').rstrip()
+        print("Received:" + str(line))
+
 
 
     if("wait" in str(msg.payload)):
