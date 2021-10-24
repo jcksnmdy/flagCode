@@ -286,9 +286,7 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe(MQTT_PATH)
 
 def prepareTurn():
-    global listenBall
     ser.flush()
-    global done
     print("preparing")
     ser.write(b"" + str(df.loc[(5),'white Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
     time.sleep(1)
@@ -337,7 +335,7 @@ def on_message(client, userdata, msg):
     if("load" in str(msg.payload)):
         Rmsg = str(msg.payload)
         print("Loading"  + str(Rmsg[6]))   
-        prepareLook = threading.Thread(group=None, target=listenHitCapture, name=None)
+        prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
         prepareLook.start()
         loadSong(int(Rmsg[6]))
 
@@ -396,6 +394,8 @@ def on_message(client, userdata, msg):
             listenBall.join()
         if (songStart.is_alive()):
             songStart.join()
+        if (prepareLook.is_alive()):
+            prepareLook.join()
     if (("restart:"+flag) in str(msg.payload)):
         print("Restarting: " + flag)
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Restart: "' + str(flag))
