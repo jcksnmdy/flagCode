@@ -310,7 +310,11 @@ def on_message(client, userdata, msg):
     if("load" in str(msg.payload)):
         Rmsg = str(msg.payload)
         print("Loading"  + str(Rmsg[6]))
+        line = ser.readline().decode('utf-8').rstrip()
+        line = ser.readline().decode('utf-8').rstrip()
         ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
+        line = ser.readline().decode('utf-8').rstrip()
+        line = ser.readline().decode('utf-8').rstrip()
         ser.write(b"" + "prepareSong".encode('ascii') + "\n".encode('ascii'))    
         line = ser.readline().decode('utf-8').rstrip()
         print("Received:" + str(line))
