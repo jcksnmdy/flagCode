@@ -318,8 +318,6 @@ def on_message(client, userdata, msg):
         line = ser.readline().decode('utf-8').rstrip()
         print("Received:" + str(line))
         ser.write(b"" + "prepareSong".encode('ascii') + "\n".encode('ascii'))    
-        line = ser.readline().decode('utf-8').rstrip()
-        print("Received:" + str(line))
         loadSong(int(Rmsg[6]))
 
 
