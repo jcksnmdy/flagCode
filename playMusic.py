@@ -41,6 +41,7 @@ else:
 time.sleep(3)
 MQTT_SERVER = "192.168.99.93"
 delay = 0.0615
+initDelay = 0.0615
 
 color = flag
 knockColorRed = knockColor
@@ -88,6 +89,10 @@ def play(num):
     ser.flush()
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
+    if (num == 7):
+        delay = 0.0618
+    else :
+        delay = initDelay
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
