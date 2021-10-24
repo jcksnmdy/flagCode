@@ -80,11 +80,11 @@ listenBall = threading.Thread(group=None, target=getStatus, name=None)
 songCode = pd.read_excel(path + "/flagCode/song" + str(1) + ".xlsx")
 
 def loadSong(num):
-	global songCode
-    ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+    global songCode
+    ser.write(b"" + "prepareSong".encode('ascii') + "\n".encode('ascii'))    
     line = ser.readline().decode('utf-8').rstrip()
     print("Received:" + str(line))
-	songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
+    songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
 
 def play(num):
     global delay, songCode
