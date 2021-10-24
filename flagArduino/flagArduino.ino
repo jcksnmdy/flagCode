@@ -178,6 +178,7 @@ void setLargeColor(int red, int green, int blue) {
 }
 
 void pulse(String color, int speed, int timeOut, String endEvent) {
+  Serial.println("PULSE")
   if (color.equals("red")) {
     rBright = 255;
     gBright = 0;
@@ -204,6 +205,7 @@ void pulse(String color, int speed, int timeOut, String endEvent) {
     bBright = 0;
   }
   for (int i = timeOut; i > 0; i--) {
+    Serial.println("PULSEING")
     setSmallColor(rBright, gBright, bBright);
     delay(speed);
     setMedColor(rBright, gBright, bBright);
