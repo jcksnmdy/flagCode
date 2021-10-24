@@ -90,7 +90,7 @@ def play(num):
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
     if (num == 7):
-        delay = 0.0618
+        delay = 0.0619
     else :
         delay = initDelay
     while (i < len(songCode)):
