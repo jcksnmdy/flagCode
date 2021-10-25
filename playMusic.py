@@ -91,6 +91,8 @@ def play(num):
     i = 0
     if (num == 7):
         delay = 0.062
+    if (num == 6):
+        delay = 0.0612
     else :
         delay = initDelay
     while (i < len(songCode)):
