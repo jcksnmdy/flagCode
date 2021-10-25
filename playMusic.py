@@ -343,8 +343,7 @@ def on_message(client, userdata, msg):
         prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
         prepareLook.start()
         loadSong(int(Rmsg[6]))
-
-
+        prepareLook.join()
 
     if("wait" in str(msg.payload)):
         print("Waiting to be hit")
