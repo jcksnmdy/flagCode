@@ -10,7 +10,7 @@ try:
         ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
         ser.flush()ser.flush()
 
-        
+
 ser.flushInput()
 ser.flushOutput()
 
@@ -55,4 +55,3 @@ ser.write(b"" + "(255.0, 255.0, 255.0)(0.0, 255.0, 0.0)(0.0, 255.0, 0.0)".encode
 time.sleep(0.01)
 line = ser.readline().decode('utf-8').rstrip()
 print(line)
-time.sleep(10)
