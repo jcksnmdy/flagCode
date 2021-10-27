@@ -7,13 +7,12 @@ import sys
 import socket
 import datetime
 sys.path.append('/home/pi/Desktop/globals/')
-#sys.path.append('/home/pi/Desktop/globals/')
+#sys.path.append('/Users/s1034274/Desktop/globals')
 from constants import path, arduinoNum, globalDelay, flag, knockColor
 #!/usr/bin/env python3
 import serial
 import time
 print(flag)
-time.sleep(15)
 import urllib.request
 def connect(host='http://google.com'):
     try:
