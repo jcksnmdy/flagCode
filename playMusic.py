@@ -39,7 +39,7 @@ else:
         print("No connection")
 
 time.sleep(3)
-MQTT_SERVER = "192.168.99.93"
+MQTT_SERVER = "192.168.99.153"
 delay = 0.0615
 initDelay = 0.0615
 
