@@ -4,11 +4,11 @@ import urllib.request
 import serial
 
 try:
-        ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
-        ser.flush()
-    except OSError:
-        ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-        ser.flush()ser.flush()
+    ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+    ser.flush()
+except OSError:
+    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    ser.flush()ser.flush()
 
 
 ser.flushInput()
