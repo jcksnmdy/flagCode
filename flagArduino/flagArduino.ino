@@ -321,10 +321,10 @@ void loop(){
   } else if(start+1500<GyZ) {
     if (listening) {
       Serial.println("HIT");
-      delay(800);
-      sparkle("white", 60, 3, "idk");
-      Serial.println("not");
     }
+    delay(500);
+    sparkle("white", 60, 3, "idk");
+    Serial.println("not");
   } 
     //Serial.println(listen());
     //Serial.println("");
@@ -342,6 +342,10 @@ String listen() {
       sparkle("white", 630, 3,"idk");
       delay(2000);
       return "blinked";
+    } else if (incomingByte.indexOf("prepare")>=0){
+      pulse("white", 1000, 10, "LOL");
+      delay(1000)
+      return "Preparing";
     } else if (incomingByte.indexOf("notMode")>=0){
       listening = false;
       return "notWriting";
