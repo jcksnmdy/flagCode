@@ -13,6 +13,7 @@ from constants import path, arduinoNum, globalDelay, flag, knockColor
 import serial
 import time
 print(flag)
+time.sleep(3)
 import urllib.request
 def connect(host='http://google.com'):
     try:

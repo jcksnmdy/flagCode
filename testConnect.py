@@ -3,8 +3,14 @@ import urllib.request
 
 import serial
 
-ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
-ser.flush()
+try:
+        ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+        ser.flush()
+    except OSError:
+        ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+        ser.flush()ser.flush()
+
+        
 ser.flushInput()
 ser.flushOutput()
 
