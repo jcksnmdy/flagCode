@@ -5,21 +5,39 @@ import serial
 
 ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
 ser.flush()
-ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 255.0, 0.0)(255.0, 255.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+ser.flushInput()
+ser.flushOutput()
 
-
+ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+ser.write(b"" + "(255.0, 255.0, 255.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
 
 
 print("Pausing for 15 seconds")
 time.sleep(15)
 
+line = ser.readline().decode('utf-8').rstrip()
+line = ser.readline().decode('utf-8').rstrip()
+line = ser.readline().decode('utf-8').rstrip()
+print(line)
+
 def connect(host='http://google.com'):
     try:
         urllib.request.urlopen(host) #Python 3.x
-        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 255.0, 255.0)(0.0, 255.0, 0.0)(0.0, 255.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 255.0, 255.0)(0.0, 255.0, 0.0)(0.0, 255.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 255.0, 255.0)(0.0, 255.0, 0.0)(0.0, 255.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.01)
+        line = ser.readline().decode('utf-8').rstrip()
+        print(line)
         return True
     except:
         ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + "(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)(255.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.01)
+        line = ser.readline().decode('utf-8').rstrip()
+        print(line) 
         return False
 # test
 while not connect():
@@ -27,4 +45,8 @@ while not connect():
     print("no internet!")
 
 print("Internet Found! Getting new code")
-        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+ser.write(b"" + "(255.0, 255.0, 255.0)(0.0, 255.0, 0.0)(0.0, 255.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+time.sleep(0.01)
+line = ser.readline().decode('utf-8').rstrip()
+print(line)
+time.sleep(10)

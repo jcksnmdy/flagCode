@@ -5,6 +5,7 @@ import threading
 import paho.mqtt.client as mqtt
 import sys
 import socket
+import datetime
 sys.path.append('/home/pi/Desktop/globals/')
 #sys.path.append('/home/pi/Desktop/globals/')
 from constants import path, arduinoNum, globalDelay, flag, knockColor
@@ -89,21 +90,34 @@ def play(num):
     ser.flush()
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
+
+    current_time = "55:55:55"
+    while ("0" not in current_time[7]):
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print(current_time[7])
+    print("Song starting")
+
     if (num == 7):
         delay = 0.062
     if (num == 6):
         delay = 0.0612
     else :
         delay = initDelay
+    ser.flush()
+    ser.flushInput()
+    ser.flushOutput()
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+        time.sleep(delay)
         line = ser.readline().decode('utf-8').rstrip()
         print("Received:" + str(line))
-        time.sleep(delay)
         i+=1
     ser.flush()
+    ser.flushInput()
+    ser.flushOutput()
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
-    print("Done")
+    print("Done: " + flag)
 
 countHits = 0
 def listenHitHelper():
@@ -204,7 +218,7 @@ def listenHitCapture():
         time.sleep(1)
     ser.flush()
     listenBall.join()
-    print("done")
+    print("Done: " + flag)
 
 def listenHit():
     ser.flush()
@@ -223,7 +237,7 @@ def listenHit():
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
     ser.flush()
     listenBall.join()
-    print("done")
+    print("Done: " + flag)
     #client2.loop_stop()
 
 def update():
@@ -247,7 +261,7 @@ def listenHitPopup():
         time.sleep(0.1)
     ser.flush()
     listenBall.join()
-    print("done")
+    print("Done: " + flag)
 
 def listenHitTarget():
     global listenBall
@@ -267,7 +281,7 @@ def listenHitTarget():
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.flush()
     listenBall.join()
-    print("done")
+    print("Done: " + flag)
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -294,6 +308,8 @@ def on_connect(client, userdata, flags, rc):
 
 def prepareTurn():
     ser.flush()
+    ser.flushInput()
+    ser.flushOutput()
     print("preparing")
     ser.write(b"" + str(df.loc[(5),'white Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
     time.sleep(1)
@@ -313,7 +329,10 @@ def prepareTurn():
     time.sleep(1)
     ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Right']).encode('ascii') + "\n".encode('ascii'))
     time.sleep(1)
+    ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.flush()
+    ser.flushInput()
+    ser.flushOutput()
     print("done")
         
 knockoutCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
@@ -324,6 +343,9 @@ popupCall = threading.Thread(group=None, target=listenHitPopup, name=None)
 songStart = threading.Thread(group=None, target=play, args=(6,), name=None)
 prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
 
+ser.flush()
+ser.flushInput()
+ser.flushOutput()
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
@@ -345,7 +367,10 @@ def on_message(client, userdata, msg):
         prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
         prepareLook.start()
         loadSong(int(Rmsg[6]))
-        prepareLook.join()
+        time.sleep(3)
+        if (prepareLook.is_alive()):
+            prepareLook.join()
+
 
     if("wait" in str(msg.payload)):
         print("Waiting to be hit")
@@ -376,12 +401,16 @@ def on_message(client, userdata, msg):
         print("Stopping")
         ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
         ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
+        time.sleep(0.1)
+        
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
         readying = True
         done = True
         readying = True
         done = True
         time.sleep(0.01)
+        ser.flushInput()
+        ser.flushOutput()
         if (targetingCall.is_alive()):
             targetingCall.join()
         if (knockoutCall.is_alive()):
@@ -398,6 +427,14 @@ def on_message(client, userdata, msg):
             listenBall.join()
         if (listenBall.is_alive()):
             listenBall.join()
+        if (songStart.is_alive()):
+            songStart.join()
+        if (prepareLook.is_alive()):
+            prepareLook.join()
+        if (songStart.is_alive()):
+            songStart.join()
+        if (prepareLook.is_alive()):
+            prepareLook.join()
         if (songStart.is_alive()):
             songStart.join()
         if (prepareLook.is_alive()):
