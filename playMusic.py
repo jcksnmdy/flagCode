@@ -46,7 +46,8 @@ initDelay = 0.0615
 
 color = flag
 knockColorRed = knockColor
-
+now = datetime.datetime.now()
+current_time = now.strftime("%H:%M:%S")
 
 try:
     ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
@@ -86,14 +87,14 @@ def loadSong(num):
     songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
 
 def play(num):
-    global delay, songCode
+    global delay, songCode, now, current_time
     ser.flush()
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
 
     current_time = "55:55:55"
     while ("0" not in current_time[7]):
-        now = datetime.now()
+        now = datetime.datetime.now()
         current_time = now.strftime("%H:%M:%S")
         print(current_time[7])
     print("Song starting")
