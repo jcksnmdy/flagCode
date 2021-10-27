@@ -12,6 +12,7 @@ def connect(host='http://google.com'):
         return False
 # test
 while not connect():
+    time.sleep(1)
     print("no internet!")
 
 print("Internet Found! Getting new code")
