@@ -87,7 +87,7 @@ def loadSong(num):
     songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
 
 def play(num):
-    global delay, songCode, now, current_time
+    global delay, songCode, now, current_time, songStart
     ser.flush()
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
@@ -116,8 +116,9 @@ def play(num):
     ser.flush()
     ser.flushInput()
     ser.flushOutput()
-    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done"')
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
     print("Done: " + flag)
+    songStart.join()
 
 countHits = 0
 def listenHitHelper():
