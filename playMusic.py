@@ -101,7 +101,9 @@ def play(num):
 
     if (num == 7):
         delay = 0.062
-    if (num == 6):
+    elif (num == 8):
+        delay = 0.0612
+    elif (num == 6):
         delay = 0.0612
     else :
         delay = initDelay
