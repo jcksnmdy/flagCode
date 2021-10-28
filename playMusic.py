@@ -100,11 +100,15 @@ def play(num):
     print("Song starting")
 
     if (num == 7):
-        delay = 0.062
+        delay = 0.0617
     elif (num == 8):
         delay = 0.0612
+    elif (num == 2):
+        delay = 0.0613
     elif (num == 6):
         delay = 0.0612
+    elif (num == 9):
+        delay = 0.0613
     else :
         delay = initDelay
 
