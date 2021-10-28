@@ -105,15 +105,14 @@ def play(num):
         delay = 0.0612
     else :
         delay = initDelay
-    ser.flush()
-    ser.flushInput()
-    ser.flushOutput()
+
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
         print("Received:" + str(line))
         time.sleep(delay)
         i+=1
+
     ser.flush()
     ser.flushInput()
     ser.flushOutput()
@@ -326,10 +325,6 @@ def prepareTurn():
     time.sleep(1)
     ser.write(b"" + str(df.loc[(5),'white Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
     time.sleep(1)
-    ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
-    time.sleep(1)
-    ser.write(b"" + str(df.loc[(5),'off']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),'white Right']).encode('ascii') + "\n".encode('ascii'))
-    time.sleep(1)
     ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
     ser.flush()
     ser.flushInput()
@@ -368,7 +363,6 @@ def on_message(client, userdata, msg):
         prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
         prepareLook.start()
         loadSong(int(Rmsg[6]))
-        time.sleep(3)
         if (prepareLook.is_alive()):
             prepareLook.join()
 
