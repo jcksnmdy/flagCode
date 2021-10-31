@@ -311,9 +311,9 @@ def on_connect(client, userdata, flags, rc):
     time.sleep(3)
     line = ser.readline().decode('utf-8').rstrip()
     if (len(line)>5):
-        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready:"+str(address)))
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready:HA"))
     else:
-        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":arduinoNotConnected:"+str(address)))
+        os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":arduinoNotConnected:HA"))
         
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
