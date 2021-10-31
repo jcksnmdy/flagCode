@@ -111,12 +111,16 @@ def play(num):
         delay = 0.0613
     else :
         delay = initDelay
-
+    nope = 0
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
         print("Received:" + str(line))
-        time.sleep(delay)
+        earlier = time.time()
+        while (now-earlier) < delay:
+            now = time.time()
+        #print(earlier-now)
+        #time.sleep(delay)
         i+=1
 
     ser.flush()
