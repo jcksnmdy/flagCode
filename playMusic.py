@@ -81,6 +81,7 @@ print(str(df.loc[(5),flag + ' Left']) + " " + str(df.loc[(5),flag + ' Middle']) 
 
 listenBall = threading.Thread(group=None, target=getStatus, name=None)
 songCode = pd.read_excel(path + "/flagCode/song" + str(1) + ".xlsx")
+nower = time.time()
 
 def loadSong(num):
     global songCode
@@ -117,8 +118,8 @@ def play(num):
         line = ser.readline().decode('utf-8').rstrip()
         print("Received:" + str(line))
         earlier = time.time()
-        while (now-earlier) < delay:
-            now = time.time()
+        while (nower-earlier) < delay:
+            nower = time.time()
         #print(earlier-now)
         #time.sleep(delay)
         i+=1

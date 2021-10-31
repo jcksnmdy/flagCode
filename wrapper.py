@@ -26,17 +26,22 @@ def on_connect(client, userdata, flags, rc):
     # reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
 
-prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
+def playStuff():
+    os.system("python3 playMusic.py")
+
+playGolf = threading.Thread(group=None, target=playStuff, name=None)
 
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global prepareLook
+    global playGolf
     print(msg.topic+" "+str(msg.payload))
+    if("start" in str(msg.payload)):
+        playGolf.start()
     if("stop" in str(msg.payload)):
         print("Stopping")
-        if (prepareLook.is_alive()):
-            prepareLook.join() 
+        if (playGolf.is_alive()):
+            playGolf.join() 
     if (("restart:"+flag) in str(msg.payload)):
         print("Restarting: " + flag)
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Restart: "' + str(flag))
