@@ -304,8 +304,8 @@ def on_connect(client, userdata, flags, rc):
     time.sleep(1)
     ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
 
-    address = get_ip_address()
-    print("Returning connected: " + address)
+    #address = get_ip_address()
+    #print("Returning connected: " + address)
         
     ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
     time.sleep(3)
