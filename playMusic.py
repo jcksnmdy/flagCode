@@ -82,13 +82,14 @@ print(str(df.loc[(5),flag + ' Left']) + " " + str(df.loc[(5),flag + ' Middle']) 
 listenBall = threading.Thread(group=None, target=getStatus, name=None)
 songCode = pd.read_excel(path + "/flagCode/song" + str(1) + ".xlsx")
 nower = time.time()
+earlier = time.time()
 
 def loadSong(num):
     global songCode
     songCode = pd.read_excel(path + "/flagCode/song" + str(num) + ".xlsx")
 
 def play(num):
-    global delay, songCode, now, current_time, songStart
+    global delay, songCode, now, current_time, songStart, nower, earlier
     ser.flush()
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
