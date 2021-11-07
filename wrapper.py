@@ -52,6 +52,9 @@ def on_message(client, userdata, msg):
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Confirming Shutdown: "' + str(flag))
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -r -n')
         os.system('sudo shutdown -h now')
+    if("newcode" in str(msg.payload)):
+        print("Getting code")
+        os.system('git pull')
         
 client = mqtt.Client()
 client.on_connect = on_connect
