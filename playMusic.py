@@ -94,12 +94,6 @@ def play(num):
     print("Programmed song playing. Programmed song count: " + str(num) + ". Song index: " + str(num))
     i = 0
 
-    current_time = "55:55:55"
-    while ("0" not in current_time[7]):
-        now = datetime.datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print(current_time[7])
-    print("Song starting")
 
     if (num == 7):
         delay = 0.0625
@@ -108,7 +102,7 @@ def play(num):
     elif (num == 2):
         delay = 0.0615
     elif (num == 6):
-        delay = 0.0626
+        delay = 0.0628
     elif (num == 9):
         delay = 0.0615
     elif (num == 2):
