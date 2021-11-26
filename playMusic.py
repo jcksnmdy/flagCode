@@ -96,21 +96,21 @@ def play(num):
 
 
     if (num == 7):
-        delay = 0.0625
+        delay = 0.063
     elif (num == 8):
-        delay = 0.0614
+        delay = 0.062
     elif (num == 2):
-        delay = 0.0615
+        delay = 0.062
     elif (num == 6):
-        delay = 0.0628
+        delay = 0.063
     elif (num == 9):
-        delay = 0.0615
+        delay = 0.062
     elif (num == 2):
-        delay = 0.064
+        delay = 0.065
     elif (num == 1):
-        delay = 0.064
+        delay = 0.065
     else :
-        delay = initDelay
+        delay = initDelay #0.0615
     nope = 0
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
