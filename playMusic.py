@@ -95,20 +95,18 @@ def play(num):
     i = 0
 
 
-    if (num == 7):
-        delay = 0.063
-    elif (num == 8):
-        delay = 0.062
-    elif (num == 2):
-        delay = 0.062
-    elif (num == 6):
-        delay = 0.063
-    elif (num == 9):
-        delay = 0.062
-    elif (num == 2):
+    if (num == 7):#lilbit
+        delay = 0.0631
+    elif (num == 8):#beggin
         delay = 0.065
-    elif (num == 1):
-        delay = 0.065
+    elif (num == 2):#thunder
+        delay = 0.066
+    elif (num == 6):#beatit
+        delay = 0.0636
+    elif (num == 9):#yeah
+        delay = 0.062
+    elif (num == 1):#serius
+        delay = 0.067
     else :
         delay = initDelay #0.0615
     nope = 0
