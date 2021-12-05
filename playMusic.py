@@ -42,7 +42,7 @@ else:
 time.sleep(3)
 MQTT_SERVER = "192.168.99.93"
 delay = 0.0615
-initDelay = 0.0615
+initDelay = 0.063
 
 color = flag
 knockColorRed = knockColor
@@ -108,7 +108,7 @@ def play(num):
     elif (num == 1):#serius
         delay = 0.067
     else :
-        delay = initDelay #0.0615
+        delay = initDelay #0.063
     nope = 0
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
