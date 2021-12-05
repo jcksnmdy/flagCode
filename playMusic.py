@@ -98,9 +98,9 @@ def play(num):
     if (num == 7):#lilbit
         delay = 0.0631
     elif (num == 8):#beggin
-        delay = 0.065
+        delay = 0.0645
     elif (num == 2):#thunder
-        delay = 0.066
+        delay = 0.0655
     elif (num == 6):#beatit
         delay = 0.0636
     elif (num == 9):#yeah
