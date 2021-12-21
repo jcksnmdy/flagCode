@@ -113,7 +113,7 @@ def play(num):
     while (i < len(songCode)):
         ser.write(b"" + str(songCode.loc[(i),flag + ' Left']).encode('ascii') + str(songCode.loc[(i),flag + ' Middle']).encode('ascii') + str(songCode.loc[(i),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
-        print("Received:" + str(line))
+        #print("Received:" + str(line))
         earlier = time.time()
         while (nower-earlier) < delay:
             nower = time.time()
@@ -133,7 +133,7 @@ def listenHitHelper():
     global done
     while done == False:
         line = ser.readline().decode('utf-8').rstrip()
-        print(line)
+        #print(line)
         time.sleep(0.1)
         if ("HIT" in line):
             print("I've been impaled")
@@ -145,7 +145,7 @@ def listenHitHelperRepeating():
     global done
     while done == False:
         line = ser.readline().decode('utf-8').rstrip()
-        print(line)
+        #print(line)
         time.sleep(0.1)
         if ("HIT" in line):
             print("I've been impaled")
@@ -202,7 +202,7 @@ def listenHitCapture():
     listenBall = threading.Thread(group=None, target=listenHitHelperC, name=None)
     listenBall.start()
     while readying == False:
-        print(str(countHits))
+        #print(str(countHits))
         if (countHits == 0):
             ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
             setStatus(flag)
@@ -239,7 +239,7 @@ def listenHit():
     while readying == False:
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         line = ser.readline().decode('utf-8').rstrip()
-        print(line)
+        #print(line)
         time.sleep(1)
         setStatus(flag)
         
@@ -261,7 +261,7 @@ def listenHitPopup():
     listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
     listenBall.start()
     while done == False:
-        print("popping")
+        #print("popping")
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(255.0, 255.0, 255.0)").encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
         ser.write(b"" + str("(255.0, 255.0, 255.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
@@ -280,7 +280,7 @@ def listenHitTarget():
     listenBall = threading.Thread(group=None, target=listenHitHelper, name=None)
     listenBall.start()
     while done == False:
-        print("Targeting")
+        #print("Targeting")
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
         time.sleep(0.1)
         ser.write(b"" + str("(0.0, 0.0, 0.0)").encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str("(0.0, 0.0, 0.0)").encode('ascii') + "\n".encode('ascii'))
