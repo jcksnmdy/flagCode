@@ -1,4 +1,5 @@
 cd /home/pi/Desktop/flagCode/
+git stash
 python3 testConnect.py
 git pull
 
