@@ -315,6 +315,15 @@ def on_connect(client, userdata, flags, rc):
     # reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
 
+def toTuple(before):
+    print("Before: " + str(before))
+    firstNum = float(before[before.find("(")+1:before.find(",")])
+    secNum = float(before[before.find(",")+2:before.find(",", 9)])
+    thirdNum = float(before[before.find(",", 9)+2:before.find(")")])
+    returning = (firstNum, secNum, thirdNum)
+    print("Returning:" + str(returning))
+    return returning
+    
 def prepareTurn():
     ser.flush()
     ser.flushInput()
