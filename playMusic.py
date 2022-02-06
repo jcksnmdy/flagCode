@@ -192,6 +192,7 @@ def listenHitKnockout():
         time.sleep(1)
     ser.flush()
     print("done")
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
 
 def listenHitCapture():
     global countHits, done, readying, listenBall
@@ -228,6 +229,7 @@ def listenHitCapture():
     ser.flush()
     listenBall.join()
     print("Done: " + flag)
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
 
 def listenHit():
     ser.flush()
@@ -247,6 +249,7 @@ def listenHit():
     ser.flush()
     listenBall.join()
     print("Done: " + flag)
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
     #client2.loop_stop()
 
 def update():
@@ -271,6 +274,7 @@ def listenHitPopup():
     ser.flush()
     listenBall.join()
     print("Done: " + flag)
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
 
 def listenHitTarget():
     global listenBall
@@ -291,6 +295,7 @@ def listenHitTarget():
     ser.flush()
     listenBall.join()
     print("Done: " + flag)
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -315,15 +320,6 @@ def on_connect(client, userdata, flags, rc):
     # reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
 
-def toTuple(before):
-    print("Before: " + str(before))
-    firstNum = float(before[before.find("(")+1:before.find(",")])
-    secNum = float(before[before.find(",")+2:before.find(",", 9)])
-    thirdNum = float(before[before.find(",", 9)+2:before.find(")")])
-    returning = (firstNum, secNum, thirdNum)
-    print("Returning:" + str(returning))
-    return returning
-    
 def prepareTurn():
     ser.flush()
     ser.flushInput()
@@ -348,6 +344,7 @@ def prepareTurn():
     ser.flushInput()
     ser.flushOutput()
     print("done")
+    os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
         
 knockoutCall = threading.Thread(group=None, target=listenHitKnockout, name=None)
 targetingCall = threading.Thread(group=None, target=listenHitTarget, name=None)
