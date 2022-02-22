@@ -369,7 +369,7 @@ def on_message(client, userdata, msg):
         Rmsg = str(msg.payload)
         print("Song" + str(Rmsg[6:]))
         ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
-        songStart = threading.Thread(group=None, target=play, args=(int(Rmsg[6]),), name=None)
+        songStart = threading.Thread(group=None, target=play, args=(int(Rmsg[6:]),), name=None)
         songStart.start()
 
     if("load" in str(msg.payload)):
@@ -377,7 +377,7 @@ def on_message(client, userdata, msg):
         print("Loading"  + str(Rmsg[6:]))   
         prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
         prepareLook.start()
-        loadSong(int(Rmsg[6]))
+        loadSong(int(Rmsg[6:]))
         if (prepareLook.is_alive()):
             prepareLook.join()
 
