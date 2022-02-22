@@ -367,7 +367,7 @@ def on_message(client, userdata, msg):
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
     if("song" in str(msg.payload)):
         Rmsg = str(msg.payload)
-        print("Song" + str(Rmsg[6]))
+        print("Song" + str(Rmsg[6:]))
         ser.write(b"" + "notMode".encode('ascii') + "\n".encode('ascii'))
         songStart = threading.Thread(group=None, target=play, args=(int(Rmsg[6]),), name=None)
         songStart.start()
