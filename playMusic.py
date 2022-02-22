@@ -374,7 +374,7 @@ def on_message(client, userdata, msg):
 
     if("load" in str(msg.payload)):
         Rmsg = str(msg.payload)
-        print("Loading"  + str(Rmsg[6]))   
+        print("Loading"  + str(Rmsg[6:]))   
         prepareLook = threading.Thread(group=None, target=prepareTurn, name=None)
         prepareLook.start()
         loadSong(int(Rmsg[6]))
