@@ -309,9 +309,11 @@ def on_connect(client, userdata, flags, rc):
     #print("Returning connected: " + address)
         
     ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+    ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+
     time.sleep(3)
     line = ser.readline().decode('utf-8').rstrip()
-    if (len(line)>5):
+    if (len(line)>2):
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready:HA"))
     else:
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":arduinoNotConnected:HA"))
@@ -475,9 +477,10 @@ def on_message(client, userdata, msg):
         print("Returning connected: " + address)
         
         ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Left']).encode('ascii') + "\n".encode('ascii'))
         time.sleep(3)
         line = ser.readline().decode('utf-8').rstrip()
-        if (len(line)>5):
+        if (len(line)>2):
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":Ready:"+str(address)))
         else:
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":arduinoNotConnected:"+str(address)))
@@ -579,6 +582,8 @@ def on_message(client, userdata, msg):
             ser.write(b"" + "(255.0, 64.0, 66.0)(255.0, 64.0, 66.0)(255.0, 64.0, 66.0)".encode('ascii') + "\n".encode('ascii'))
         if("9" in str(msg.payload)):
             ser.write(b"" + "(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)(0.0, 0.0, 0.0)".encode('ascii') + "\n".encode('ascii'))
+        line = ser.readline().decode('utf-8').rstrip()
+        print(line)
 
 client = mqtt.Client()
 client.on_connect = on_connect
