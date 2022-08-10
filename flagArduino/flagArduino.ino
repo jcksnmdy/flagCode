@@ -1,14 +1,17 @@
 //Code created by Ian Buckley for an article on makeuseof.com
 
 #include<Wire.h>
-const int MPU=0x68; 
-int16_t GyZ,start;
+const int MPU = 0x68;
+int16_t GyZ, start;
 int count = 1;
 //define pins for the red, green and blue LEDs
 #define RED_LEDsmall 2
 #define GREEN_LEDsmall 3
 #define BLUE_LEDsmall 4
 
+int rawValue, minimum, maximum, peakValue;
+int threshold = 50; // sensitivity
+int mySensVals[300];
 
 #define RED_LEDmed 5
 #define BLUE_LEDmed 7
@@ -28,19 +31,19 @@ int buttonState = 0;         // variable for reading the pushbutton status
 //overall brightness value
 int brightness = 255;
 //individual brightness values for the red, green and blue LEDs
-int gBrightSmall = 0; 
+int gBrightSmall = 0;
 int rBrightSmall = 0;
 int bBrightSmall = 0;
 
-int gBright = 0; 
+int gBright = 0;
 int rBright = 0;
 int bBright = 0;
 
-int gBrightMed = 0; 
+int gBrightMed = 0;
 int rBrightMed = 0;
 int bBrightMed = 0;
 
-int gBrightLarge = 0; 
+int gBrightLarge = 0;
 int rBrightLarge = 0;
 int bBrightLarge = 0;
 
@@ -66,119 +69,129 @@ void setup() {
   TurnOn(0, 0, 0);
   Wire.begin();
   Wire.beginTransmission(MPU);
-  Wire.write(0x6B); 
-  Wire.write(0);   
+  Wire.write(0x6B);
+  Wire.write(0);
   Wire.endTransmission(true);
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
   delay(1333);
 }
 
-void standBy(){
-   
-    for (int i=0;i<256; i++){
-      
-      analogWrite(RED_LEDsmall, rBrightSmall);
-      rBrightSmall +=1;
-      if (gBrightSmall > 0) {
-        analogWrite(GREEN_LEDsmall, gBrightSmall);
-        gBrightSmall -=1;
-      }
-      analogWrite(RED_LEDmed, rBrightMed);
-      rBrightMed +=1;
-      if (gBrightMed > 0) {
-        analogWrite(GREEN_LEDmed, gBrightMed);
-        gBrightMed -=1;
-      }
-      analogWrite(RED_LEDlarge, rBrightLarge);
-      rBrightLarge +=1;
-      if (gBrightLarge > 0) {
-        analogWrite(GREEN_LEDlarge, gBrightLarge);
-        gBrightLarge -=1;
-      }
-      
-      delay(fadeSpeed);
 
-    }
-    for (int i=0;i<256; i++){
-      
-      analogWrite(BLUE_LEDsmall, bBrightSmall);
-      bBrightSmall += 1;
-      analogWrite(RED_LEDsmall, rBrightSmall);
-      rBrightSmall -=1;
-      
-      analogWrite(BLUE_LEDmed, bBrightMed);
-      bBrightMed += 1;
-      analogWrite(RED_LEDmed, rBrightMed);
-      rBrightMed -=1;
-      analogWrite(BLUE_LEDlarge, bBrightLarge);
-      bBrightLarge += 1;
-      analogWrite(RED_LEDlarge, rBrightLarge);
-      rBrightLarge -=1;
-      
-      delay(fadeSpeed);
-    }  
+float average (int * array, int len)  // assuming array is int.
+{
+  long sum = 0L ;  // sum will be larger than an item, long for safety.
+  for (int i = 0 ; i < len ; i++)
+    sum += array [i] ;
+  return  ((float) sum) / len ;  // average will be fractional, so float may be appropriate.
+}
 
-    for (int i=0;i<256; i++){
-      
+
+void standBy() {
+
+  for (int i = 0; i < 256; i++) {
+
+    analogWrite(RED_LEDsmall, rBrightSmall);
+    rBrightSmall += 1;
+    if (gBrightSmall > 0) {
       analogWrite(GREEN_LEDsmall, gBrightSmall);
-      gBrightSmall +=1;
-      analogWrite(BLUE_LEDsmall, bBrightSmall);
-      bBrightSmall -= 1;
-      
+      gBrightSmall -= 1;
+    }
+    analogWrite(RED_LEDmed, rBrightMed);
+    rBrightMed += 1;
+    if (gBrightMed > 0) {
       analogWrite(GREEN_LEDmed, gBrightMed);
-      gBrightMed +=1;
-      analogWrite(BLUE_LEDmed, bBrightMed);
-      bBrightMed -= 1;
+      gBrightMed -= 1;
+    }
+    analogWrite(RED_LEDlarge, rBrightLarge);
+    rBrightLarge += 1;
+    if (gBrightLarge > 0) {
       analogWrite(GREEN_LEDlarge, gBrightLarge);
-      gBrightLarge +=1;
-      analogWrite(BLUE_LEDlarge, bBrightLarge);
-      bBrightLarge -= 1;
-      
-      delay(fadeSpeed);
-    }  
+      gBrightLarge -= 1;
+    }
+
+    delay(fadeSpeed);
+
+  }
+  for (int i = 0; i < 256; i++) {
+
+    analogWrite(BLUE_LEDsmall, bBrightSmall);
+    bBrightSmall += 1;
+    analogWrite(RED_LEDsmall, rBrightSmall);
+    rBrightSmall -= 1;
+
+    analogWrite(BLUE_LEDmed, bBrightMed);
+    bBrightMed += 1;
+    analogWrite(RED_LEDmed, rBrightMed);
+    rBrightMed -= 1;
+    analogWrite(BLUE_LEDlarge, bBrightLarge);
+    bBrightLarge += 1;
+    analogWrite(RED_LEDlarge, rBrightLarge);
+    rBrightLarge -= 1;
+
+    delay(fadeSpeed);
+  }
+
+  for (int i = 0; i < 256; i++) {
+
+    analogWrite(GREEN_LEDsmall, gBrightSmall);
+    gBrightSmall += 1;
+    analogWrite(BLUE_LEDsmall, bBrightSmall);
+    bBrightSmall -= 1;
+
+    analogWrite(GREEN_LEDmed, gBrightMed);
+    gBrightMed += 1;
+    analogWrite(BLUE_LEDmed, bBrightMed);
+    bBrightMed -= 1;
+    analogWrite(GREEN_LEDlarge, gBrightLarge);
+    gBrightLarge += 1;
+    analogWrite(BLUE_LEDlarge, bBrightLarge);
+    bBrightLarge -= 1;
+
+    delay(fadeSpeed);
+  }
 }
 
 
-void TurnOff(){
-    setSmallColor(0,0,0);
-    setMedColor(0,0,0);
-    setLargeColor(0,0,0);
+void TurnOff() {
+  setSmallColor(0, 0, 0);
+  setMedColor(0, 0, 0);
+  setLargeColor(0, 0, 0);
 }
 
-void TurnOn(int red, int green, int blue){
-    setSmallColor(red,green,blue);
-    setMedColor(red,green,blue);
-    setLargeColor(red,green,blue);
+void TurnOn(int red, int green, int blue) {
+  setSmallColor(red, green, blue);
+  setMedColor(red, green, blue);
+  setLargeColor(red, green, blue);
 }
-void TurnOnTime(int red, int green, int blue, int timeOut){
-    setSmallColor(red,green,blue);
-    setMedColor(red,green,blue);
-    setLargeColor(red,green,blue);
-    delay(timeOut);
+void TurnOnTime(int red, int green, int blue, int timeOut) {
+  setSmallColor(red, green, blue);
+  setMedColor(red, green, blue);
+  setLargeColor(red, green, blue);
+  delay(timeOut);
 }
 void setSmallColor(int red, int green, int blue) {
-    analogWrite(GREEN_LEDsmall, (int)(green*0.97));
-    analogWrite(RED_LEDsmall, (int)(red*0.97));
-    analogWrite(BLUE_LEDsmall, (int)(blue*0.97));
-    //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
+  analogWrite(GREEN_LEDsmall, (int)(green * 0.97));
+  analogWrite(RED_LEDsmall, (int)(red * 0.97));
+  analogWrite(BLUE_LEDsmall, (int)(blue * 0.97));
+  //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
 }
 
 void setMedColor(int red, int green, int blue) {
-    analogWrite(RED_LEDmed, (int)(red*0.97));
-    analogWrite(GREEN_LEDmed, (int)(green*0.97));
-    analogWrite(BLUE_LEDmed, (int)(blue*0.97));
-    //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
+  analogWrite(RED_LEDmed, (int)(red * 0.97));
+  analogWrite(GREEN_LEDmed, (int)(green * 0.97));
+  analogWrite(BLUE_LEDmed, (int)(blue * 0.97));
+  //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
 }
 
 void setLargeColor(int red, int green, int blue) {
-    analogWrite(RED_LEDlarge, (int)(red*0.97));
-    analogWrite(GREEN_LEDlarge, (int)(green*0.97));
-    analogWrite(BLUE_LEDlarge, (int)(blue*0.97));
-    //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
+  analogWrite(RED_LEDlarge, (int)(red * 0.97));
+  analogWrite(GREEN_LEDlarge, (int)(green * 0.97));
+  analogWrite(BLUE_LEDlarge, (int)(blue * 0.97));
+  //Serial.println(String((int)(red*0.86)) + ", " + String((int)(green*0.94)) + ", " + String((int)(blue)));
 }
 
 void pulse(String color, int speed, int timeOut, String endEvent) {
-  Serial.println("PULSE")
+  Serial.println("PULSE");
   if (color.equals("red")) {
     rBright = 255;
     gBright = 0;
@@ -205,7 +218,7 @@ void pulse(String color, int speed, int timeOut, String endEvent) {
     bBright = 0;
   }
   for (int i = timeOut; i > 0; i--) {
-    Serial.println("PULSEING")
+    Serial.println("PULSEING");
     setSmallColor(rBright, gBright, bBright);
     delay(speed);
     setMedColor(rBright, gBright, bBright);
@@ -304,33 +317,35 @@ void blink(String color, int speed, int timeOut, String endEvent) {
   }
 }
 boolean listening = false;
-void loop(){
-  Wire.beginTransmission(MPU);
-  Wire.write(0x3B);  
-  Wire.endTransmission(false);
-  Wire.requestFrom(MPU,12,true);  
-  if (count == 1) {
-     start=Wire.read()<<8|Wire.read(); 
+void loop() {
+  minimum = 0; // reset
+  maximum = 0;
+  for (int i = 0; i < 300; i++) { // measure
+    rawValue = analogRead(A8);
+    if (rawValue < minimum) minimum = rawValue; // store min peak
+    if (rawValue > maximum) maximum = rawValue; // store max peak
+    mySensVals[i] = rawValue;
   }
-  count+=1;
-  GyZ=Wire.read()<<8|Wire.read(); 
-  //listen();
-  //TurnOn(255,35,0);
+  threshold = average(mySensVals, 300);
+  peakValue = maximum - minimum; // calc difference
+  
   if (Serial.available() > 0) {
     Serial.println(listen());
-  } else if(start+1500<GyZ) {
-    if (listening) {
-      Serial.println("HIT");
+  } else if (maximum > threshold+10) { // action
+      Serial.println("HIT: " + String(maximum) + " average: " + String(threshold));
+      if (listening) {
+        Serial.println("HIT: " + String(maximum) + " average: " + String(threshold));
     }
     delay(500);
     sparkle("white", 60, 3, "idk");
     Serial.println("not");
-  } 
-    //Serial.println(listen());
-    //Serial.println("");
-    //TurnOn(255,0,0);
-    //Serial.println("not");(128.0, 128.0, 128.0)(128.0, 128.0, 128.0)(128.0, 128.0, 128.0)
-  
+
+  }
+  //Serial.println(listen());
+  //Serial.println("");
+  //TurnOn(255,0,0);
+  //Serial.println("not");(128.0, 128.0, 128.0)(128.0, 128.0, 128.0)(128.0, 128.0, 128.0)
+
 }
 
 String listen() {
@@ -338,28 +353,28 @@ String listen() {
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.readStringUntil('\n');
-    if (incomingByte.indexOf("smack")>=0){
-      sparkle("white", 630, 3,"idk");
+    if (incomingByte.indexOf("smack") >= 0) {
+      sparkle("white", 630, 3, "idk");
       delay(2000);
       return "blinked";
-    } else if (incomingByte.indexOf("notMode")>=0){
+    } else if (incomingByte.indexOf("notMode") >= 0) {
       listening = false;
       return "notWriting";
-    }  else if (incomingByte.indexOf("modeing")>=0){
+    }  else if (incomingByte.indexOf("modeing") >= 0) {
       listening = true;
       return "Writing";
     } else {
-    smallCode = incomingByte.substring(0, incomingByte.indexOf(")(")+1);
-    medCode = incomingByte.substring(incomingByte.indexOf(")(")+1, incomingByte.indexOf(")(", 23)+1);
-    largeCode = incomingByte.substring(incomingByte.indexOf(")(", 23)+1, incomingByte.indexOf(")", 43)+1);
-    //Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)) + " " + incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")));
+      smallCode = incomingByte.substring(0, incomingByte.indexOf(")(") + 1);
+      medCode = incomingByte.substring(incomingByte.indexOf(")(") + 1, incomingByte.indexOf(")(", 23) + 1);
+      largeCode = incomingByte.substring(incomingByte.indexOf(")(", 23) + 1, incomingByte.indexOf(")", 43) + 1);
+      //Serial.println("I got: " + incomingByte + " " + incomingByte.substring(1, incomingByte.indexOf(",")) + " " + incomingByte.substring(incomingByte.indexOf(",")+2, incomingByte.indexOf(",", 7)) + " " + incomingByte.substring(incomingByte.indexOf(",", 7)+2, incomingByte.indexOf(")")));
 
-    setSmallColor(smallCode.substring(1, smallCode.indexOf(",")).toInt(), smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt(), smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt());
-    setMedColor(medCode.substring(1, medCode.indexOf(",")).toInt(), medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt(), medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt());
-    setLargeColor(largeCode.substring(1, largeCode.indexOf(",")).toInt(), largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt(), largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt());
-    
-    //return "(" + String(smallCode.substring(1, smallCode.indexOf(",")).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt()) + ")(" + String(medCode.substring(1, medCode.indexOf(",")).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt()) + ")(" + String(largeCode.substring(1, largeCode.indexOf(",")).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt()) + ")";
-    return smallCode + " " + medCode + " " + largeCode;
+      setSmallColor(smallCode.substring(1, smallCode.indexOf(",")).toInt(), smallCode.substring(smallCode.indexOf(",") + 2, smallCode.indexOf(",", 7)).toInt(), smallCode.substring(smallCode.indexOf(",", 7) + 2, smallCode.indexOf(")")).toInt());
+      setMedColor(medCode.substring(1, medCode.indexOf(",")).toInt(), medCode.substring(medCode.indexOf(",") + 2, medCode.indexOf(",", 7)).toInt(), medCode.substring(medCode.indexOf(",", 7) + 2, medCode.indexOf(")")).toInt());
+      setLargeColor(largeCode.substring(1, largeCode.indexOf(",")).toInt(), largeCode.substring(largeCode.indexOf(",") + 2, largeCode.indexOf(",", 7)).toInt(), largeCode.substring(largeCode.indexOf(",", 7) + 2, largeCode.indexOf(")")).toInt());
+
+      //return "(" + String(smallCode.substring(1, smallCode.indexOf(",")).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",")+2, smallCode.indexOf(",", 7)).toInt()) + ", " + String(smallCode.substring(smallCode.indexOf(",", 7)+2, smallCode.indexOf(")")).toInt()) + ")(" + String(medCode.substring(1, medCode.indexOf(",")).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",")+2, medCode.indexOf(",", 7)).toInt()) + ", " + String(medCode.substring(medCode.indexOf(",", 7)+2, medCode.indexOf(")")).toInt()) + ")(" + String(largeCode.substring(1, largeCode.indexOf(",")).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",")+2, largeCode.indexOf(",", 7)).toInt()) + ", " + String(largeCode.substring(largeCode.indexOf(",", 7)+2, largeCode.indexOf(")")).toInt()) + ")";
+      return smallCode + " " + medCode + " " + largeCode;
     }
     // if (incomingByte.substring(0,1).equals("1")) {
     //   if (incomingByte.substring(1,2).equals("1")) {
@@ -409,9 +424,9 @@ String listen() {
     // } else {
     //   TurnOn(255, 0, 0)
     // }
-    }// else {
-//    standBy();
-//  }
+  }// else {
+  //    standBy();
+  //  }
   // else {
   //   standBy();
   // }// 102!red!!200!!!3!!!!sparkle
