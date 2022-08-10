@@ -127,7 +127,7 @@ def play(num):
     os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "Done: ' + flag + "'")
     print("Done: " + flag)
     songStart.join()
-
+done = False
 countHits = 0
 def listenHitHelper():
     global done
