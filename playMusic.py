@@ -151,6 +151,8 @@ def listenHitHelperRepeating():
             print("I've been impaled")
             os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m "hit"')
             print(line)
+        ser.write(b"" + str(df.loc[(5),flag + ' Left']).encode('ascii') + str(df.loc[(5),flag + ' Middle']).encode('ascii') + str(df.loc[(5),flag + ' Right']).encode('ascii') + "\n".encode('ascii'))
+
 
 def listenHitHelperC():
     global done, countHits
