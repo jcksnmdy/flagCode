@@ -320,7 +320,8 @@ def on_connect(client, userdata, flags, rc):
     else:
         os.system('mosquitto_pub -h ' + MQTT_SERVER + ' -t test_channel -m ' + str(flag+":arduinoNotConnected:HA"))
     
-    listenHitHelperRepeating()
+    targetingCallRepeat = threading.Thread(group=None, target=listenHit, name=None)
+    targetingCallRepeat.start()
         
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
