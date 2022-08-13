@@ -331,7 +331,7 @@ void loop() {
   
   if (Serial.available() > 0) {
     Serial.println(listen());
-  } else if (maximum > threshold+10) { // action
+  } else if (maximum > threshold+4) { // action
       Serial.println("HIT: " + String(maximum) + " average: " + String(threshold));
       if (listening) {
         Serial.println("HIT: " + String(maximum) + " average: " + String(threshold));
